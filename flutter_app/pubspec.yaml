@@ -35,6 +35,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   mqtt_client: ^7.2.1
   dart_amqp: ^0.2.1
+  http: ^0.13.4
+
 
 dev_dependencies:
   flutter_test:
