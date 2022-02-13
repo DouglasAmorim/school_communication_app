@@ -53,6 +53,7 @@ class LoginState extends State<Login> {
     final String? username = _controllerUsername.text;
     final String? password = _controllerPassword.text;
 
+    // TODO: Tratar Retorno da API
     switch(widget.loginUser) {
       case SelectedLoginUser.parents:
         ApiImpl().parentsLogin(username!, password!);

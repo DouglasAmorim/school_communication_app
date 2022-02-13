@@ -12,6 +12,7 @@ import 'Professor.dart';
 
 class ApiImpl {
 
+  // TODO: Mandar endpoints para um arquivo de constantes separados
   Future<Professor> teacherLogin(String username, String password) async {
 
     final response = await http.post(Uri.parse('http://localhost:5000/login/teacher/${username}/${password}'),
@@ -31,7 +32,7 @@ class ApiImpl {
   Future<Estudante> studentLogin(String username, String password) async {
 
     print(username);
-    final response = await http.post(Uri.parse('http://localhost:5000/login/student/${username}/${password}'),
+    final response = await http.post(Uri.parse('http://localhost:5000/login/students/${username}/${password}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
