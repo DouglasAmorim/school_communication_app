@@ -8,13 +8,13 @@ import 'package:http/http.dart' as http;
 import 'package:tcc_ifsc/models/Parents.dart';
 
 import 'Estudante.dart';
-import 'Professot.dart';
+import 'Professor.dart';
 
 class ApiImpl {
 
   Future<Professor> teacherLogin(String username, String password) async {
 
-    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
+    final response = await http.post(Uri.parse('http://localhost:5000/login/teacher/${username}/${password}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
@@ -30,7 +30,8 @@ class ApiImpl {
 
   Future<Estudante> studentLogin(String username, String password) async {
 
-    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
+    print(username);
+    final response = await http.post(Uri.parse('http://localhost:5000/login/student/${username}/${password}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
@@ -46,7 +47,7 @@ class ApiImpl {
 
   Future<Parents> parentsLogin(String username, String password) async {
 
-    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
+    final response = await http.post(Uri.parse('http://localhost:5000/login/parents/${username}/${password}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',

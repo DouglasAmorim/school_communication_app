@@ -2,6 +2,7 @@ class Parents {
   final int id;
   final int queueId;
   final String name;
+  final String username;
   final String password;
   final String telefone;
   final String email;
@@ -10,6 +11,7 @@ class Parents {
     required this.id,
     required this.queueId,
     required this.name,
+    required this.username,
     required this.password,
     required this.email,
     required this.telefone,
@@ -20,6 +22,7 @@ class Parents {
       id: json['PaisId'],
       queueId: json['QueueId'],
       name: json['Nome'],
+      username: json['Username'],
       password: json['Senha'],
       telefone: json['Telefone'],
       email: json['Email'],

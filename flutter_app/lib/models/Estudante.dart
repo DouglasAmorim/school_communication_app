@@ -2,6 +2,7 @@ class Estudante {
   final int id;
   final int queueId;
   final String name;
+  final String username;
   final String password;
   final int turmaId;
 
@@ -9,6 +10,7 @@ class Estudante {
     required this.id,
     required this.queueId,
     required this.name,
+    required this.username,
     required this.password,
     required this.turmaId,
   });
@@ -18,6 +20,7 @@ class Estudante {
       id: json['AlunosId'],
       queueId: json['QueueId'],
       name: json['Nome'],
+      username: json['Username'],
       password: json['Senha'],
       turmaId: json['TurmaId'],
     );

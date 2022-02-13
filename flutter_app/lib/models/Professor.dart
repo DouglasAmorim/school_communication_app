@@ -2,12 +2,14 @@ class Professor {
   final int id;
   final int queueId;
   final String name;
+  final String username;
   final String password;
 
   const Professor({
     required this.id,
     required this.queueId,
     required this.name,
+    required this.username,
     required this.password,
   });
 
@@ -16,6 +18,7 @@ class Professor {
       id: json['ProfessoresId'],
       queueId: json['QueueId'],
       name: json['Nome'],
+      username: json['Username'],
       password: json['Senha'],
     );
   }
