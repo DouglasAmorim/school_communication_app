@@ -5,56 +5,58 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tcc_ifsc/models/Parents.dart';
 
-class Professor {
-  final int id;
-  final int queueId;
-  final String name;
-  final String password;
-
-  const Professor({
-    required this.id,
-    required this.queueId,
-    required this.name,
-    required this.password,
-  });
-
-  factory Professor.fromJson(Map<String, dynamic> json) {
-    return Professor(
-        id: json['ProfessoresId'],
-        queueId: json['QueueId'],
-        name: json['Nome'],
-        password: json['Senha'],
-    );
-  }
-}
+import 'Estudante.dart';
+import 'Professot.dart';
 
 class ApiImpl {
-  Future<Professor> login() async {
 
-    print("NAMAA");
+  Future<Professor> teacherLogin(String username, String password) async {
 
-    final response = await http.post(Uri.parse('http://localhost:5000/login/Rubem/123456'),
+    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
       },
     );
 
-    /*headers: <String, String> {
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-    'title': 'a',
-    }),*/
-
-
     if(response.statusCode == 200) {
       return Professor.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load Professor');
     }
+  }
 
+  Future<Estudante> studentLogin(String username, String password) async {
 
+    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return Estudante.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load Professor');
+    }
+  }
+
+  Future<Parents> parentsLogin(String username, String password) async {
+
+    final response = await http.post(Uri.parse('http://localhost:5000/login/${username}/${password}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return Parents.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load Professor');
+    }
   }
 }

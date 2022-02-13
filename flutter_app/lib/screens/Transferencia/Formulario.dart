@@ -57,36 +57,23 @@ class SendMessageState extends State<SendMessage> {
   }
 
   void _createMqtt(BuildContext context) {
+    final client = new MqttServerClient.withPort('127.0.0.1', 'identifier' , 5672);
 
-    print("asawsas");
-    ApiImpl().login().then((value) {
+    final connMessage = MqttConnectMessage()
+        .authenticateAs("admin", "D!o@4701298")
+        .keepAliveFor(60)
+        .withWillTopic('qwebapp')
+        .withWillMessage('message')
+        .startClean()
+        .withWillQos(MqttQos.atLeastOnce);
 
-      print(value.password);
-      print(value.name);
-      print(value.id);
-      print(value.queueId);
+    client.connectionMessage = connMessage;
 
-      final client = new MqttServerClient.withPort('127.0.0.1', 'identifier' , 5672);
+    final MqttTest mqttTest = MqttTest(client);
 
-      final connMessage = MqttConnectMessage()
-          .authenticateAs("admin", "D!o@4701298")
-          .keepAliveFor(60)
-          .withWillTopic('qwebapp')
-          .withWillMessage('message')
-          .startClean()
-          .withWillQos(MqttQos.atLeastOnce);
-
-      client.connectionMessage = connMessage;
-
-      final MqttTest mqttTest = MqttTest(client);
-
-      mqttTest.connect().then((value) {
-        Navigator.pop(context, value);
-      });
+    mqttTest.connect().then((value) {
+      Navigator.pop(context, value);
     });
-
-
-
   }
 }
 

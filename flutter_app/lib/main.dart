@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_ifsc/screens/Login/Login.dart';
 import 'package:tcc_ifsc/screens/Transferencia/Lista.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+
+import 'Enums/SelectedLoginEnum.dart';
 
 void main() {
   runApp(TccIfsc());
@@ -53,37 +56,42 @@ class LoginWidgetState extends State<LoginWidget> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget> [
           ElevatedButton(style: style,
-              onPressed: null,
+              onPressed: () => _openLoginScreen(context, SelectedLoginUser.student),
               child: const Text('STUDENT_LOGIN'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: null,
+            onPressed: () => _openLoginScreen(context, SelectedLoginUser.teacher),
             child: const Text('TEACHER_LOGIN'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: null,
+            onPressed: () => _openLoginScreen(context, SelectedLoginUser.parents),
             child: const Text('PARENTS_LOGIN'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: null,
+            onPressed: () => _openLoginScreen(context, SelectedLoginUser.school),
             child: const Text('SCHOOL_LOGIN'),
           ),
 
         ],
       ),
     );
+  }
 
-    // TODO: implement build
-    throw UnimplementedError();
+  void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Login(loginUser: loginUser,);
+    }));
+
   }
 
 }
