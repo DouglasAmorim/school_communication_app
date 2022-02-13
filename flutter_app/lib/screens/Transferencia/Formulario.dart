@@ -58,10 +58,15 @@ class SendMessageState extends State<SendMessage> {
 
   void _createMqtt(BuildContext context) {
 
+    print("asawsas");
     ApiImpl().login().then((value) {
-      print(value);
 
-      final client = new MqttServerClient.withPort('192.168.0.15', 'identifier' , 5672);
+      print(value.password);
+      print(value.name);
+      print(value.id);
+      print(value.queueId);
+
+      final client = new MqttServerClient.withPort('127.0.0.1', 'identifier' , 5672);
 
       final connMessage = MqttConnectMessage()
           .authenticateAs("admin", "D!o@4701298")
