@@ -1,0 +1,17 @@
+Tela inicial LOGIN com as seguintes Opções : 
+	- Professor
+	- Aluno
+	- Pais
+	- Instituição
+
+Clicando em uma das opções será redirecionado para
+	- tela de inserção de usuario / senha
+
+Após o Login Carregar lista de Contatos : 
+	- Tela inicial do app será uma lista com todos os contatos disponiveis
+
+Ao clicar em um contato
+	- Será aberta a tela de dialogo
+	- Onde será exibida o historico de mensagem
+	- e onde será possivel enviar uma nova mensagem
+
