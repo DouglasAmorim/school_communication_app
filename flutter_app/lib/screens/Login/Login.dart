@@ -67,12 +67,6 @@ class LoginState extends State<Login> {
         ApiImpl().studentLogin(username!, password!);
         break;
     }
-
-    // ApiImpl().login()
-    //
-    // final transferenciaCriada = Transferencia(value!,numberAccount!);
-    // debugPrint('$transferenciaCriada');
-    // Navigator.pop(context, transferenciaCriada);
   }
 
 }

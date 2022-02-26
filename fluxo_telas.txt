@@ -1,10 +1,10 @@
-Tela inicial LOGIN com as seguintes Opções : 
+Tela inicial LOGIN com as seguintes Opções : DONE
 	- Professor
 	- Aluno
 	- Pais
 	- Instituição
 
-Clicando em uma das opções será redirecionado para
+Clicando em uma das opções será redirecionado para DONE
 	- tela de inserção de usuario / senha
 
 Após o Login Carregar lista de Contatos : 

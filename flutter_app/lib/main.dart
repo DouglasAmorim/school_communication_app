@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
-import 'package:tcc_ifsc/screens/Transferencia/Lista.dart';
-import 'package:mqtt_client/mqtt_client.dart';
-
 import 'Enums/SelectedLoginEnum.dart';
 
 void main() {
@@ -28,11 +25,10 @@ class TccIfsc extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('TCC App')),
         body: const LoginWidget(),
-      ), // MessageList(), //ListaTransferencias(),
+      ),
     );
   }
 }
-
 
 class LoginWidget extends StatefulWidget {
   const LoginWidget({ Key? key }) : super(key: key);
@@ -53,32 +49,32 @@ class LoginWidgetState extends State<LoginWidget> {
 
     return Center(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.max,
         children: <Widget> [
           ElevatedButton(style: style,
               onPressed: () => _openLoginScreen(context, SelectedLoginUser.student),
-              child: const Text('STUDENT_LOGIN'),
+              child: const Text('Estudantes'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
             onPressed: () => _openLoginScreen(context, SelectedLoginUser.teacher),
-            child: const Text('TEACHER_LOGIN'),
+            child: const Text('Professores'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
             onPressed: () => _openLoginScreen(context, SelectedLoginUser.parents),
-            child: const Text('PARENTS_LOGIN'),
+            child: const Text('Pais'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
             onPressed: () => _openLoginScreen(context, SelectedLoginUser.school),
-            child: const Text('SCHOOL_LOGIN'),
+            child: const Text('Escola'),
           ),
 
         ],
@@ -87,11 +83,8 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
-
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return Login(loginUser: loginUser,);
     }));
-
   }
-
 }
