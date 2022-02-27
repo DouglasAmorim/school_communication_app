@@ -22,9 +22,12 @@ class ApiImpl {
       },
     );
 
+    print(response.statusCode);
     if(response.statusCode == 200) {
+      print("200");
       return Professor.fromJson(jsonDecode(response.body));
     } else {
+      print("another");
       throw Exception('Failed to load Professor');
     }
   }

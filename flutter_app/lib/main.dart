@@ -83,8 +83,8 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Login(loginUser: loginUser,);
-    }));
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Login(loginUser: loginUser,);
+      }));
   }
 }

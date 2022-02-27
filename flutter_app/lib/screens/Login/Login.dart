@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:tcc_ifsc/Enums/SelectedLoginEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImpl.dart';
+import 'package:tcc_ifsc/models/Professor.dart';
+import 'package:tcc_ifsc/screens/Dashboard/Dashboard.dart';
 
 const _tituloAppBar = 'Login Screen';
 const _rotuloCampoUserName = 'Nome de Usuário';
@@ -61,12 +63,24 @@ class LoginState extends State<Login> {
       case SelectedLoginUser.school:
         break;
       case SelectedLoginUser.teacher:
-        ApiImpl().teacherLogin(username!, password!);
+        Future<Professor> teacher = ApiImpl().teacherLogin(username!, password!).then((value) {
+          print(value.username);
+          _openDashboard(context, value);
+          return value;
+        }, onError: (e) {
+          return 1;
+        });
         break;
       case SelectedLoginUser.student:
         ApiImpl().studentLogin(username!, password!);
         break;
     }
+  }
+
+  void _openDashboard(BuildContext context, Professor teacher) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Dashboard(teacher: teacher,);
+    }));
   }
 
 }
