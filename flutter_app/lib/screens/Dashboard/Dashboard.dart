@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_ifsc/models/ContactsItemList.dart';
 import 'package:tcc_ifsc/models/Professor.dart';
 
 const _tituloAppBar = 'Dashboard';
@@ -31,23 +32,5 @@ class DashboardState extends State<Dashboard> {
         )
 
     );
-  }
-}
-
-
-class ContactsItemList extends StatelessWidget {
-  final String _contactName;
-
-  ContactsItemList(this._contactName);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(Icons.message),
-        title: Text(_contactName),
-      ),
-    );
-    throw UnimplementedError();
   }
 }

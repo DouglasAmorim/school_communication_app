@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:tcc_ifsc/screens/Mensagem/Mensagem.dart';
+
 class ContactsItemList extends StatelessWidget {
   final String _contactName;
 
@@ -9,6 +12,11 @@ class ContactsItemList extends StatelessWidget {
       child: ListTile(
         leading: Icon(Icons.message),
         title: Text(_contactName),
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return Mensagem();
+          }));
+        },
       ),
     );
     throw UnimplementedError();
