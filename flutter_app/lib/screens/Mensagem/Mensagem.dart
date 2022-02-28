@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
+import 'package:tcc_ifsc/models/ApiImpl.dart';
 
 const _tituloAppBar = 'Dashboard';
 const _dicaCampoMensagem = 'olá ! ';
@@ -54,6 +55,9 @@ class MensagemState extends State<Mensagem> {
   void _envioMensagem(BuildContext context) {
     final String? mensagem = _controllerMensagem.text;
     // TODO: Tratar envio da mensagem
+
+    ApiImpl().sendMessageToAluno();
+
     if(mensagem != null) {
       setState(() {
         widget._mensagens.add(mensagem);

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -146,6 +145,24 @@ class ApiImpl {
       }
     } else {
       return [];
+    }
+  }
+
+  Future<bool> sendMessageToAluno() async {
+    print('init send message');
+
+    final response = await http.post(Uri.parse('http://localhost:5000/professor/send/banana/1/teste'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    print(response.body);
+    if(response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
