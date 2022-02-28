@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
 import 'Enums/SelectedLoginEnum.dart';
@@ -40,40 +41,45 @@ class LoginWidget extends StatefulWidget {
 class LoginWidgetState extends State<LoginWidget> {
   @override
   Widget build(BuildContext context) {
-
     final ButtonStyle style = ElevatedButton.styleFrom(
         textStyle: const TextStyle(fontSize: 20),
         primary: Colors.green,
         minimumSize: const Size.fromHeight(50)
     );
 
+    _configureFirebase();
+
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        children: <Widget> [
+        children: <Widget>[
           ElevatedButton(style: style,
-              onPressed: () => _openLoginScreen(context, SelectedLoginUser.student),
-              child: const Text('Estudantes'),
+            onPressed: () =>
+                _openLoginScreen(context, SelectedLoginUser.student),
+            child: const Text('Estudantes'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: () => _openLoginScreen(context, SelectedLoginUser.teacher),
+            onPressed: () =>
+                _openLoginScreen(context, SelectedLoginUser.teacher),
             child: const Text('Professores'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: () => _openLoginScreen(context, SelectedLoginUser.parents),
+            onPressed: () =>
+                _openLoginScreen(context, SelectedLoginUser.parents),
             child: const Text('Pais'),
           ),
 
           const SizedBox(height: 20),
 
           ElevatedButton(style: style,
-            onPressed: () => _openLoginScreen(context, SelectedLoginUser.school),
+            onPressed: () =>
+                _openLoginScreen(context, SelectedLoginUser.school),
             child: const Text('Escola'),
           ),
 
@@ -83,8 +89,12 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return Login(loginUser: loginUser,);
-      }));
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Login(loginUser: loginUser,);
+    }));
+  }
+
+  void _configureFirebase() {
+    FirebaseMessaging messaging = FirebaseMessaging();
   }
 }

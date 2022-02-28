@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1053752755039",
+    "project_id": "tcccomunicationapp",
+    "storage_bucket": "tcccomunicationapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053752755039:android:cae4c47f819cf1ba8facea",
+        "android_client_info": {
+          "package_name": "com.tcc.flutterApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053752755039-qpii3ho69asat8t869dj79fg8k5kt6v9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBM_XniUtBzbU5xG2JWKswJGiQNMK6ekho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053752755039-qpii3ho69asat8t869dj79fg8k5kt6v9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1053752755039-q1ibpimfdj59m0js5caa08eloi3t1sfl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tccifsc.ios-flutter-app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
