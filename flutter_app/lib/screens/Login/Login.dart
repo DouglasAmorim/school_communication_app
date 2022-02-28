@@ -4,7 +4,7 @@ import 'package:tcc_ifsc/Enums/SelectedLoginEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImpl.dart';
 import 'package:tcc_ifsc/models/Professor.dart';
-import 'package:tcc_ifsc/screens/Dashboard/Dashboard.dart';
+import 'package:tcc_ifsc/screens/Dashboard/TeacherDashboard.dart';
 
 const _tituloAppBar = 'Login Screen';
 const _rotuloCampoUserName = 'Nome de Usuário';
@@ -79,7 +79,7 @@ class LoginState extends State<Login> {
 
   void _openDashboard(BuildContext context, Professor teacher) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Dashboard(teacher: teacher,);
+      return TeacherDashboard(teacher: teacher,);
     }));
   }
 

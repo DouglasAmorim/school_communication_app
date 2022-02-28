@@ -64,4 +64,87 @@ class ApiImpl {
       throw Exception('Failed to load Professor');
     }
   }
+
+  Future<List<Professor>> alunosContacts(int id) async {
+    final response = await http.get(Uri.parse('http://localhost:5000/alunos/${id}/contacts'),
+      headers: <String, String> {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Access-Control-Allow-Origin': '*',
+     },
+    );
+    if(response.statusCode == 200) {
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<Professor> professorObj = listObj.map((json) => Professor.fromJson(json)).toList();
+        return professorObj;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Parents>> teacherContactsParents(int id) async {
+    final response = await http.get(Uri.parse('http://localhost:5000/professores/${id}/contacts/pais'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+    if(response.statusCode == 200) {
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<Parents> parentsObj = listObj.map((json) => Parents.fromJson(json)).toList();
+        print(parentsObj);
+        return parentsObj;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Estudante>> teacherContactsAlunos(int id) async {
+    final response = await http.get(Uri.parse('http://localhost:5000/professores/${id}/contacts/alunos'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<Estudante> estudanteObj = listObj.map((json) => Estudante.fromJson(json)).toList();
+        return estudanteObj;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  Future<List<Professor>> parentsContacts(int id) async {
+    final response = await http.get(Uri.parse('http://localhost:5000/pais/${id}/contacts'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<Professor> professorObj = listObj.map((json) => Professor.fromJson(json)).toList();
+        return professorObj;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
 }

@@ -18,6 +18,14 @@ class Parents {
   });
 
   factory Parents.fromJson(Map<String, dynamic> json) {
+    print("JSON ${json}");
+    print(json['PaisId']);
+    print(json['QueueId']);
+    print(json['Nome']);
+    print(json['Username']);
+    print(json['Telefone']);
+    print(json['Email']);
+
     return Parents(
       id: json['PaisId'],
       queueId: json['QueueId'],
