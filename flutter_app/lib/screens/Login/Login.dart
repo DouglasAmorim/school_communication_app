@@ -3,7 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:tcc_ifsc/Enums/SelectedLoginEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImpl.dart';
+import 'package:tcc_ifsc/models/Estudante.dart';
+import 'package:tcc_ifsc/models/Parents.dart';
 import 'package:tcc_ifsc/models/Professor.dart';
+import 'package:tcc_ifsc/screens/Dashboard/ParentsDashboard.dart';
+import 'package:tcc_ifsc/screens/Dashboard/StudentsDashboard.dart';
 import 'package:tcc_ifsc/screens/Dashboard/TeacherDashboard.dart';
 
 const _tituloAppBar = 'Login Screen';
@@ -58,21 +62,31 @@ class LoginState extends State<Login> {
     // TODO: Tratar Retorno da API
     switch(widget.loginUser) {
       case SelectedLoginUser.parents:
-        ApiImpl().parentsLogin(username!, password!);
+        Future<Parents> parents = ApiImpl().parentsLogin(username!, password!).then((value) {
+          _openParentDashboard(context, value);
+          return value;
+        }, onError: (e) {
+          return e;
+        });
+
         break;
       case SelectedLoginUser.school:
         break;
       case SelectedLoginUser.teacher:
         Future<Professor> teacher = ApiImpl().teacherLogin(username!, password!).then((value) {
-          print(value.username);
           _openDashboard(context, value);
           return value;
         }, onError: (e) {
-          return 1;
+          return e;
         });
         break;
       case SelectedLoginUser.student:
-        ApiImpl().studentLogin(username!, password!);
+        Future<Estudante> student = ApiImpl().studentLogin(username!, password!).then((value) {
+          _openStudentDashboard(context, value);
+          return value;
+        }, onError: (e) {
+          return e;
+        });
         break;
     }
   }
@@ -80,6 +94,18 @@ class LoginState extends State<Login> {
   void _openDashboard(BuildContext context, Professor teacher) {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return TeacherDashboard(teacher: teacher,);
+    }));
+  }
+
+  void _openStudentDashboard(BuildContext context, Estudante estudante) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return StudentsDashboard(estudante: estudante,);
+    }));
+  }
+
+  void _openParentDashboard(BuildContext context, Parents parents) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return ParentsDashboard(parents: parents,);
     }));
   }
 

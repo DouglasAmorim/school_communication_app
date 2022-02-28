@@ -135,6 +135,7 @@ class ApiImpl {
       },
     );
 
+    print(response.body);
     if(response.statusCode == 200) {
       var listObj = jsonDecode(response.body) as List;
       if(listObj != null) {
