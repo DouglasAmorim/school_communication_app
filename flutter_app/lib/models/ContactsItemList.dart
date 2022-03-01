@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/screens/Mensagem/Mensagem.dart';
+import 'EstruturaMensagem.dart';
 
 class ContactsItemList extends StatelessWidget {
-  final List<String> mensagens;
+  final List<EstruturaMensagem> mensagens;
   final String destinatarioNome;
   final String remetenteNome;
   final int destinatarioQueueId;

@@ -167,7 +167,7 @@ class ApiImpl {
     }
   }
 
-  Future<CaixaEntradaAluno> getCaixaAlunos(String url) async {
+  Future<List<CaixaEntradaAluno>> getCaixaAlunos(String url) async {
 
     final response = await http.get(Uri.parse('${url}'),
       headers: <String, String> {
@@ -177,13 +177,19 @@ class ApiImpl {
     );
 
     if(response.statusCode == 200) {
-      return CaixaEntradaAluno.fromJson(jsonDecode(response.body));
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<CaixaEntradaAluno> obj = listObj.map((json) => CaixaEntradaAluno.fromJson(json)).toList();
+        return obj;
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load messages to alunos');
     }
   }
 
-  Future<CaixaEntradaProfessores> getCaixaProfessores(String url) async {
+  Future<List<CaixaEntradaProfessores>> getCaixaProfessores(String url) async {
 
     final response = await http.get(Uri.parse('${url}'),
       headers: <String, String> {
@@ -193,13 +199,19 @@ class ApiImpl {
     );
 
     if(response.statusCode == 200) {
-      return CaixaEntradaProfessores.fromJson(jsonDecode(response.body));
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<CaixaEntradaProfessores> obj = listObj.map((json) => CaixaEntradaProfessores.fromJson(json)).toList();
+        return obj;
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load messages to professores');
     }
   }
 
-  Future<CaixaEntradaPais> getCaixaPais(String url) async {
+  Future<List<CaixaEntradaPais>> getCaixaPais(String url) async {
 
     final response = await http.get(Uri.parse('${url}'),
       headers: <String, String> {
@@ -209,13 +221,19 @@ class ApiImpl {
     );
 
     if(response.statusCode == 200) {
-      return CaixaEntradaPais.fromJson(jsonDecode(response.body));
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<CaixaEntradaPais> obj = listObj.map((json) => CaixaEntradaPais.fromJson(json)).toList();
+        return obj;
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load messages to pais');
     }
   }
 
-  Future<CaixaEntradaEscola> getCaixaEscola(String url) async {
+  Future<List<CaixaEntradaEscola>> getCaixaEscola(String url) async {
 
     final response = await http.get(Uri.parse('${url}'),
       headers: <String, String> {
@@ -225,7 +243,13 @@ class ApiImpl {
     );
 
     if(response.statusCode == 200) {
-      return CaixaEntradaEscola.fromJson(jsonDecode(response.body));
+      var listObj = jsonDecode(response.body) as List;
+      if(listObj != null) {
+        List<CaixaEntradaEscola> obj = listObj.map((json) => CaixaEntradaEscola.fromJson(json)).toList();
+        return obj;
+      } else {
+        return [];
+      }
     } else {
       throw Exception('Failed to load messages to escolas');
     }

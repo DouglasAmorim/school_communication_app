@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImpl.dart';
+import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 
 const _tituloAppBar = 'Dashboard';
 const _dicaCampoMensagem = 'olá ! ';
@@ -9,7 +10,7 @@ const _rotuloCampoMensagem = 'Nova Mensagem';
 const _textoBotaoConfirmar = 'Enviar';
 
 class Mensagem extends StatefulWidget {
-  final List<String> mensagens;
+  final List<EstruturaMensagem> mensagens;
   final String destinatarioNome;
   final String remetenteNome;
   final int destinatarioQueueId;
@@ -46,7 +47,7 @@ class MensagemState extends State<Mensagem> {
               shrinkWrap: true,
               itemBuilder: (context, indice) {
                 final contactName = widget.mensagens[indice];
-                return MensagensItemList(contactName);
+                return MensagensItemList(contactName.mensagem!);
               },
             ),
             Editor(controller: _controllerMensagem, dica: _dicaCampoMensagem , rotulo: _rotuloCampoMensagem),
@@ -97,12 +98,13 @@ class MensagemState extends State<Mensagem> {
     // TODO: Tratar envio da mensagem
     if(mensagem != null) {
 
-      final String url = "/${getRemetente()}/send/${getDestinatario()}";
+      final String url = "http://localhost:5000/${getRemetente()}/send/${getDestinatario()}";
 
       ApiImpl().sendMessage(url, widget.destinatarioId, widget.destinatarioQueueId, widget.remetenteNome, widget.remetenteId, mensagem).then((value) {
         if(value) {
           setState(() {
-            widget.mensagens.add(mensagem);
+            final EstruturaMensagem estrutura = EstruturaMensagem(mensagem: mensagem, date: 'now', isReceived: false, contactId: widget.destinatarioId, contactType: widget.destinatarioType);
+            widget.mensagens.add(estrutura);
             _controllerMensagem.text = "";
           });
         } else {
@@ -126,6 +128,5 @@ class MensagensItemList extends StatelessWidget {
         title: Text(_mensagem),
       ),
     );
-    throw UnimplementedError();
   }
 }
