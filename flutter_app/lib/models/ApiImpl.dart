@@ -4,8 +4,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tcc_ifsc/models/CaixaEntradaAluno.dart';
 import 'package:tcc_ifsc/models/Parents.dart';
 
+import 'CaixaEntradaEscola.dart';
+import 'CaixaEntradaPais.dart';
+import 'CaixaEntradaProfessores.dart';
 import 'Estudante.dart';
 import 'Professor.dart';
 
@@ -148,21 +152,82 @@ class ApiImpl {
     }
   }
 
-  Future<bool> sendMessageToAluno() async {
-    print('init send message');
-
-    final response = await http.post(Uri.parse('http://localhost:5000/professor/send/banana/1/teste'),
+  Future<bool> sendMessage(String url, int destinatarioId, int destinatarioQueueId, String remetenteNome, int remetenteId, String message) async {
+    final response = await http.post(Uri.parse('${url}/${remetenteNome}/${destinatarioId}/${remetenteId}/${destinatarioQueueId}/${message}'),
       headers: <String, String> {
         'Content-Type': 'application/json; charset=UTF-8',
         'Access-Control-Allow-Origin': '*',
       },
     );
 
-    print(response.body);
     if(response.statusCode == 200) {
       return true;
     } else {
       return false;
+    }
+  }
+
+  Future<CaixaEntradaAluno> getCaixaAlunos(String url) async {
+
+    final response = await http.get(Uri.parse('${url}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return CaixaEntradaAluno.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load messages to alunos');
+    }
+  }
+
+  Future<CaixaEntradaProfessores> getCaixaProfessores(String url) async {
+
+    final response = await http.get(Uri.parse('${url}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return CaixaEntradaProfessores.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load messages to professores');
+    }
+  }
+
+  Future<CaixaEntradaPais> getCaixaPais(String url) async {
+
+    final response = await http.get(Uri.parse('${url}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return CaixaEntradaPais.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load messages to pais');
+    }
+  }
+
+  Future<CaixaEntradaEscola> getCaixaEscola(String url) async {
+
+    final response = await http.get(Uri.parse('${url}'),
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Access-Control-Allow-Origin': '*',
+      },
+    );
+
+    if(response.statusCode == 200) {
+      return CaixaEntradaEscola.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load messages to escolas');
     }
   }
 }

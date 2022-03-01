@@ -44,7 +44,7 @@ class ParentsDashboardState extends State<ParentsDashboard> {
 
               itemBuilder: (context, indice) {
                 final contact = widget._professorList[indice];
-                return ContactsItemList(contact.name);
+                return ContactsItemList(contact.name, contact.queueId, widget.parents.id, contact.id, [] ,widget.parents.name, widget.parents.type, contact.type);
               },
             ),
           ],

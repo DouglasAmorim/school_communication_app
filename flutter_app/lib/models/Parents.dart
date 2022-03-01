@@ -1,3 +1,5 @@
+import 'package:tcc_ifsc/Enums/typeEnum.dart';
+
 class Parents {
   final int id;
   final int queueId;
@@ -6,6 +8,7 @@ class Parents {
   final String password;
   final String telefone;
   final String email;
+  final typeEnum type = typeEnum.parents;
 
   const Parents({
     required this.id,

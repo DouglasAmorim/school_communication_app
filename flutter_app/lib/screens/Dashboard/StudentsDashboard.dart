@@ -44,7 +44,7 @@ class StudentsDashboardState extends State<StudentsDashboard> {
 
               itemBuilder: (context, indice) {
                 final contact = widget._professorList[indice];
-                return ContactsItemList(contact.name);
+                return ContactsItemList(contact.name, contact.queueId, widget.estudante.id, contact.id, [] ,widget.estudante.name, widget.estudante.type, contact.type);
               },
             ),
           ],

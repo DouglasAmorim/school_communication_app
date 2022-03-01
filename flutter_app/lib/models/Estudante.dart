@@ -1,3 +1,5 @@
+import 'package:tcc_ifsc/Enums/typeEnum.dart';
+
 class Estudante {
   final int id;
   final int queueId;
@@ -5,6 +7,7 @@ class Estudante {
   final String username;
   final String password;
   final int turmaId;
+  final typeEnum type = typeEnum.student;
 
   const Estudante({
     required this.id,

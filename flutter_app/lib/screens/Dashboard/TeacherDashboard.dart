@@ -45,7 +45,7 @@ class TeacherDashboardState extends State<TeacherDashboard> {
 
                 itemBuilder: (context, indice) {
                   final contact = widget._estudanteList[indice];
-                  return ContactsItemList(contact.name);
+                  return ContactsItemList(contact.name, contact.queueId, widget.teacher.id, contact.id, [] ,widget.teacher.name, widget.teacher.type, contact.type);
                 },
               ),
 
@@ -57,7 +57,7 @@ class TeacherDashboardState extends State<TeacherDashboard> {
 
                 itemBuilder: (context, indice) {
                   final contact = widget._parentsList[indice];
-                  return ContactsItemList(contact.name);
+                  return ContactsItemList(contact.name, contact.queueId, widget.teacher.id, contact.id, [] ,widget.teacher.name, widget.teacher.type, contact.type);
                 },
               )
             ],

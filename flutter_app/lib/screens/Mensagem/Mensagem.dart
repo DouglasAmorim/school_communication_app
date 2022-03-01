@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImpl.dart';
 
@@ -8,8 +9,16 @@ const _rotuloCampoMensagem = 'Nova Mensagem';
 const _textoBotaoConfirmar = 'Enviar';
 
 class Mensagem extends StatefulWidget {
-  final List<String> _mensagens = ["oi", "tudo bom ?"];
-  Mensagem({Key? key}) : super(key: key);
+  final List<String> mensagens;
+  final String destinatarioNome;
+  final String remetenteNome;
+  final int destinatarioQueueId;
+  final int destinatarioId;
+  final int remetenteId;
+  final typeEnum remetenteType;
+  final typeEnum destinatarioType;
+
+  Mensagem({Key? key, required this.mensagens, required this.destinatarioId, required this.destinatarioNome, required this.destinatarioQueueId, required this.remetenteId, required this.remetenteNome, required this.remetenteType, required this.destinatarioType}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -32,11 +41,11 @@ class MensagemState extends State<Mensagem> {
         child: Column(
           children: <Widget>[
             ListView.builder(
-              itemCount: widget._mensagens.length,
+              itemCount: widget.mensagens.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemBuilder: (context, indice) {
-                final contactName = widget._mensagens[indice];
+                final contactName = widget.mensagens[indice];
                 return MensagensItemList(contactName);
               },
             ),
@@ -52,19 +61,55 @@ class MensagemState extends State<Mensagem> {
     );
   }
 
+  String getDestinatario() {
+    switch(widget.destinatarioType) {
+      case typeEnum.school:
+        return "escola";
+      case typeEnum.parents:
+        return "pais";
+      case typeEnum.student:
+        return "alunos";
+      case typeEnum.teacher:
+        return "professores";
+      default:
+        return "escola";
+    }
+  }
+
+  String getRemetente() {
+    switch(widget.remetenteType) {
+      case typeEnum.teacher:
+        return "professor";
+      case typeEnum.parents:
+        return "pais";
+      case typeEnum.student:
+        return "alunos";
+      case typeEnum.school:
+        return "escola";
+      default:
+        return "alunos";
+
+    }
+  }
+
   void _envioMensagem(BuildContext context) {
     final String? mensagem = _controllerMensagem.text;
     // TODO: Tratar envio da mensagem
-
-    ApiImpl().sendMessageToAluno();
-
     if(mensagem != null) {
-      setState(() {
-        widget._mensagens.add(mensagem);
-        _controllerMensagem.text = "";
+
+      final String url = "/${getRemetente()}/send/${getDestinatario()}";
+
+      ApiImpl().sendMessage(url, widget.destinatarioId, widget.destinatarioQueueId, widget.remetenteNome, widget.remetenteId, mensagem).then((value) {
+        if(value) {
+          setState(() {
+            widget.mensagens.add(mensagem);
+            _controllerMensagem.text = "";
+          });
+        } else {
+          // TODO: SHOW ERROR MESSAGE
+        }
       });
     }
-
   }
 }
 
