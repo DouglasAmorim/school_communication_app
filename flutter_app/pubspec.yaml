@@ -30,6 +30,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_secure_storage: ^3.3.5
+
   firebase_core: ^0.4.0+9
   # Add the dependency for the FlutterFire plugin for Google Analytics
   firebase_analytics: ^5.0.2

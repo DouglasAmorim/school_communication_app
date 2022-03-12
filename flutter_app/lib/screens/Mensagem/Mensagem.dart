@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
-import 'package:tcc_ifsc/models/ApiImpl.dart';
+import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 
 const _tituloAppBar = 'Dashboard';

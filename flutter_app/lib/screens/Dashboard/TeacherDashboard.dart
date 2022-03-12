@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tcc_ifsc/models/ApiImpl.dart';
+import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/ContactsItemList.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
-import 'package:tcc_ifsc/models/Estudante.dart';
-import 'package:tcc_ifsc/models/Parents.dart';
-import 'package:tcc_ifsc/models/Professor.dart';
+import 'package:tcc_ifsc/models/Users/Estudante.dart';
+import 'package:tcc_ifsc/models/Users/Parents.dart';
+import 'package:tcc_ifsc/models/Users/Professor.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 
 const _tituloAppBar = 'Dashboard';
