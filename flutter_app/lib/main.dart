@@ -1,10 +1,19 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
 import 'Enums/SelectedLoginEnum.dart';
 
-void main() {
+Future<void> _messageHandler(RemoteMessage message) async {
+  print('background message ${message.notification!.body}');
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_messageHandler);
   runApp(TccIfsc());
 }
 
@@ -44,13 +53,20 @@ class LoginWidgetState extends State<LoginWidget> {
   late FirebaseMessaging messaging;
   @override
   void initState() {
-    print("banana");
     super.initState();
-    print("Antes");
     messaging = FirebaseMessaging.instance;
-    print("AQUI");
     messaging.getToken().then((value) {
-      print(value);
+      print("token ${value}");
+      // print(value);
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message received");
+      print(event.notification!.body);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print("Message clicked!");
     });
   }
 
