@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
@@ -39,6 +40,20 @@ class LoginWidget extends StatefulWidget {
 }
 
 class LoginWidgetState extends State<LoginWidget> {
+
+  late FirebaseMessaging messaging;
+  @override
+  void initState() {
+    print("banana");
+    super.initState();
+    print("Antes");
+    messaging = FirebaseMessaging.instance;
+    print("AQUI");
+    messaging.getToken().then((value) {
+      print(value);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final ButtonStyle style = ElevatedButton.styleFrom(
@@ -46,8 +61,6 @@ class LoginWidgetState extends State<LoginWidget> {
         primary: Colors.green,
         minimumSize: const Size.fromHeight(50)
     );
-
-    _configureFirebase();
 
     return Center(
       child: Column(
@@ -92,9 +105,5 @@ class LoginWidgetState extends State<LoginWidget> {
     Navigator.push(context, MaterialPageRoute(builder: (context) {
       return Login(loginUser: loginUser,);
     }));
-  }
-
-  void _configureFirebase() {
-    FirebaseMessaging messaging = FirebaseMessaging();
   }
 }
