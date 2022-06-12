@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -5,9 +6,45 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
 import 'Enums/SelectedLoginEnum.dart';
+import 'package:http/http.dart' as http;
 
 Future<void> _messageHandler(RemoteMessage message) async {
   print('background message ${message.notification!.body}');
+}
+
+Future<void> sendNotification(subject, title, senderName, senderQueueId, recipientQueueId) async {
+  final postUrl = 'https://fcm.googleapis.com/fcm/send';
+
+  String toParams = "/topics/"+'${recipientQueueId}';
+
+  final data = {
+    "notification": {
+      "body": subject,
+      "title":title
+    },
+    "priority":"high",
+    "data": {
+      "Name": "${senderName}",
+      "Sender-Queue-Id": "${senderQueueId}",
+    },
+    "to": "${toParams}"
+  };
+
+  final headers = {
+    'content-type': 'application/json',
+    'Authorization': 'key=AAAA9ViPA18:APA91bFwBB2jcBlhvb3pm9OcZonCG2B3BZ82MaX70oYQdOu9_5BUpisjqKzrglbRi5z_ehjxU9ggZ1m0pt0WpNBeEFkbPMrm3aKqzy21xJ0XoF-AVDkBsZq42fzop5gSVtm0t3GtzRhT'
+  };
+
+  final response = await http.post(Uri.parse(postUrl),
+      body: json.encode(data),
+      encoding: Encoding.getByName('utf-8'),
+      headers: headers);
+
+  if (response.statusCode == 200) {
+    print("true ${response.body}");
+  } else {
+    print("false");
+  }
 }
 
 void main() async {
@@ -56,7 +93,7 @@ class LoginWidgetState extends State<LoginWidget> {
     super.initState();
     messaging = FirebaseMessaging.instance;
 
-    messaging.subscribeToTopic('messaging');
+    messaging.subscribeToTopic("destinoQueue");
 
     messaging.getToken().then((value) {
       print("token ${value}");
@@ -140,8 +177,10 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Login(loginUser: loginUser,);
-    }));
+    print("chamou aqui");
+    sendNotification("banana", "pijama", "meuNome", "minhaQueue", "destinoQueue");
+    // Navigator.push(context, MaterialPageRoute(builder: (context) {
+    //   return Login(loginUser: loginUser,);
+    // }));
   }
 }
