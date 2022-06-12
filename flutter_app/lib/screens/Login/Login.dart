@@ -9,6 +9,8 @@ import 'package:tcc_ifsc/models/Users/Professor.dart';
 import 'package:tcc_ifsc/screens/Dashboard/ParentsDashboard.dart';
 import 'package:tcc_ifsc/screens/Dashboard/StudentsDashboard.dart';
 import 'package:tcc_ifsc/screens/Dashboard/TeacherDashboard.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 const _tituloAppBar = 'Login Screen';
 const _rotuloCampoUserName = 'Nome de Usuário';
@@ -59,10 +61,10 @@ class LoginState extends State<Login> {
     final String? username = _controllerUsername.text;
     final String? password = _controllerPassword.text;
 
-    // TODO: Tratar Retorno da API
     switch(widget.loginUser) {
       case SelectedLoginUser.parents:
         Future<Parents> parents = ApiImpl().parentsLogin(username!, password!).then((value) {
+          FirebaseMessaging.instance.subscribeToTopic("pais_queue_${value.queueId}");
           _openParentDashboard(context, value);
           return value;
         }, onError: (e) {
@@ -74,7 +76,12 @@ class LoginState extends State<Login> {
         break;
       case SelectedLoginUser.teacher:
         Future<Professor> teacher = ApiImpl().teacherLogin(username!, password!).then((value) {
+
+          FirebaseMessaging.instance.subscribeToTopic("professor_queue_${value.queueId}");
+
           _openDashboard(context, value);
+
+
           return value;
         }, onError: (e) {
           return e;
@@ -82,6 +89,7 @@ class LoginState extends State<Login> {
         break;
       case SelectedLoginUser.student:
         Future<Estudante> student = ApiImpl().studentLogin(username!, password!).then((value) {
+          FirebaseMessaging.instance.subscribeToTopic("estudante_queue_${value.queueId}");
           _openStudentDashboard(context, value);
           return value;
         }, onError: (e) {

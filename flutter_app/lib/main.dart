@@ -32,7 +32,7 @@ Future<void> sendNotification(subject, title, senderName, senderQueueId, recipie
 
   final headers = {
     'content-type': 'application/json',
-    'Authorization': 'key=AAAA9ViPA18:APA91bFwBB2jcBlhvb3pm9OcZonCG2B3BZ82MaX70oYQdOu9_5BUpisjqKzrglbRi5z_ehjxU9ggZ1m0pt0WpNBeEFkbPMrm3aKqzy21xJ0XoF-AVDkBsZq42fzop5gSVtm0t3GtzRhT'
+    'Authorization': 'key=key'
   };
 
   final response = await http.post(Uri.parse(postUrl),
@@ -93,7 +93,7 @@ class LoginWidgetState extends State<LoginWidget> {
     super.initState();
     messaging = FirebaseMessaging.instance;
 
-    messaging.subscribeToTopic("destinoQueue");
+    // messaging.subscribeToTopic("destinoQueue");
 
     messaging.getToken().then((value) {
       print("token ${value}");
@@ -177,10 +177,10 @@ class LoginWidgetState extends State<LoginWidget> {
   }
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
-    print("chamou aqui");
-    sendNotification("banana", "pijama", "meuNome", "minhaQueue", "destinoQueue");
-    // Navigator.push(context, MaterialPageRoute(builder: (context) {
-    //   return Login(loginUser: loginUser,);
-    // }));
+    // print("chamou aqui");
+    // sendNotification("banana", "pijama", "meuNome", "minhaQueue", "destinoQueue");
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return Login(loginUser: loginUser,);
+    }));
   }
 }
