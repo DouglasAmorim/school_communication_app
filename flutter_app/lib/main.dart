@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/Login/Login.dart';
 import 'Enums/SelectedLoginEnum.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_database/firebase_database.dart';
 
 Future<void> _messageHandler(RemoteMessage message) async {
   print('background message ${message.notification!.body}');
@@ -86,6 +88,7 @@ class LoginWidget extends StatefulWidget {
 }
 
 class LoginWidgetState extends State<LoginWidget> {
+  final firestoresInstance = FirebaseFirestore.instance;
 
   late FirebaseMessaging messaging;
   @override
@@ -131,6 +134,7 @@ class LoginWidgetState extends State<LoginWidget> {
 
   @override
   Widget build(BuildContext context) {
+
     final ButtonStyle style = ElevatedButton.styleFrom(
         textStyle: const TextStyle(fontSize: 20),
         primary: Colors.green,
@@ -167,7 +171,8 @@ class LoginWidgetState extends State<LoginWidget> {
 
           ElevatedButton(style: style,
             onPressed: () =>
-                _openLoginScreen(context, SelectedLoginUser.school),
+              _onpressed(),
+                // _openLoginScreen(context, SelectedLoginUser.school),
             child: const Text('Escola'),
           ),
 
@@ -175,6 +180,29 @@ class LoginWidgetState extends State<LoginWidget> {
       ),
     );
   }
+
+  void _onpressed() {
+    firestoresInstance.collection("users").add(
+        {
+          "name": "Cleiton Rasta",
+          "username": "cleitonRasta",
+          "Type": "Teacher",
+          "queueId": "teacher_cleiton"
+        }
+    ).then((value) {
+      print(value.id);
+    });
+
+    firestoresInstance.collection("users").add({
+    "name": "Cleiton Bob",
+    "username": "cleitonBob",
+    "Type": "Student",
+    "queueId": "student_cleiton"
+    }).then((value) {
+    print(value.id);
+    });
+  }
+
 
   void _openLoginScreen(BuildContext context, SelectedLoginUser loginUser) {
     // print("chamou aqui");
