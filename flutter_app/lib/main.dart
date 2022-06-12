@@ -55,6 +55,9 @@ class LoginWidgetState extends State<LoginWidget> {
   void initState() {
     super.initState();
     messaging = FirebaseMessaging.instance;
+
+    messaging.subscribeToTopic('messaging');
+
     messaging.getToken().then((value) {
       print("token ${value}");
       // print(value);
@@ -63,6 +66,25 @@ class LoginWidgetState extends State<LoginWidget> {
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message received");
       print(event.notification!.body);
+      print(event.data.values);
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Notification'),
+              content: Text(event.notification!.body!),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Ok')
+                )
+              ],
+
+            );
+          });
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
