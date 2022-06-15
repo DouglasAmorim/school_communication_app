@@ -30,7 +30,7 @@ class ComunicationApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Meet Up',
+      title: 'Comunica IFSC',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -48,7 +48,7 @@ class IntroScreen extends StatelessWidget {
         navigateAfterSeconds: result != null ? Home(uid: result.uid,) : SignUp(),
         seconds: 5,
         title: new Text(
-          'Welcome To Meet up!',
+          'Boas Vindas ao Comunica IFSC!',
           style: new TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
         ),
         image: Image.asset('assets/images/dart.png', fit: BoxFit.scaleDown),

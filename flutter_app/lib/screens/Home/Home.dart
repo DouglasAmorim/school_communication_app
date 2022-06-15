@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../FluxoLogin/Signup.dart';
 
@@ -32,10 +33,58 @@ class Home extends StatelessWidget {
             )
           ],
         ),
-        body: Center(child: Text('Welcome!')),
+        body: ContactsList(),
+
         drawer: NavigateDrawer(uid: this.uid));
   }
 }
+
+class ContactsList extends StatefulWidget {
+  final User user;
+  final List<User> _contactsList = [];
+  var _getContacts = true;
+
+  ContactsList({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ContactsListState();
+  }
+}
+
+class _ContactsListState extends State<ContactsList> {
+  final firestoreInstance = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    if(widget._getContacts) {
+      _getUserInformation();
+    }
+
+
+  }
+
+
+
+  void _getUserInformation() {
+    firestoreInstance.collection("users")
+      .where("id", isEqualTo: widget.uid)
+      .get()
+      .then((query) {
+        query.docs.forEach((result) {
+          print(result.data());
+        });
+    });
+  }
+}
+
+
+
+
+
+
+
+
 
 class NavigateDrawer extends StatefulWidget {
   final String? uid;
@@ -47,6 +96,8 @@ class NavigateDrawer extends StatefulWidget {
 }
 
 class _NavigateDrawerState extends State<NavigateDrawer> {
+  final firestoreInstance = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -54,6 +105,7 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
+
             // TODO: Get Account information From FirebaseFirestorm
               accountName: Text("TESTE"),
               accountEmail: Text("TESTE"),
@@ -87,12 +139,8 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
               print(widget.uid);
             },
           ),
-
-
         ],
-
       ),
     );
-
   }
 }
