@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 
+import '../../models/ContactsItemList.dart';
+import '../../models/EstruturaMensagem.dart';
+import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
 
 class Home extends StatelessWidget {
@@ -33,21 +39,23 @@ class Home extends StatelessWidget {
             )
           ],
         ),
-        body: ContactsList(),
+        body: ContactsList(user: UserData(), uid: this.uid,),
 
-        drawer: NavigateDrawer(uid: this.uid));
+        drawer: NavigateDrawer(user: UserData(), uid: this.uid));
   }
 }
 
 class ContactsList extends StatefulWidget {
-  final User user;
-  final List<User> _contactsList = [];
+  final UserData user;
+  final String? uid;
+  final List<UserData> _contactsList = [];
   var _getContacts = true;
 
-  ContactsList({Key? key, required this.user}) : super(key: key);
+  ContactsList({Key? key, required this.user, this.uid}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
+    user.id = uid!;
     return _ContactsListState();
   }
 }
@@ -61,18 +69,46 @@ class _ContactsListState extends State<ContactsList> {
       _getUserInformation();
     }
 
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            // Students List
+            ListView.builder(
+              itemCount: widget._contactsList.length,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
 
+              itemBuilder: (context, indice) {
+                // TODO: Implementar get das mensagens
+
+                final contact = widget._contactsList[indice];
+                final List<EstruturaMensagem> lista = [];
+
+                return ContactItemCell(contact);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-
-
   void _getUserInformation() {
+    print("Banana get user information ${widget.user.id}");
     firestoreInstance.collection("users")
-      .where("id", isEqualTo: widget.uid)
+      .where("id", isEqualTo: widget.user.id)
       .get()
       .then((query) {
         query.docs.forEach((result) {
-          print(result.data());
+
+          final data = result.data();
+          widget.user.id = data["id"];
+          widget.user.name = data["name"];
+          widget.user.matricula = data["matricula"];
+          widget.user.username = data["username"];
+          widget.user.type = data["type"];
+          widget.user.turma = data["Turma"];
         });
     });
   }
@@ -80,24 +116,17 @@ class _ContactsListState extends State<ContactsList> {
 
 
 
-
-
-
-
-
-
 class NavigateDrawer extends StatefulWidget {
   final String? uid;
+  final UserData user;
 
-  NavigateDrawer({Key? key, this.uid}) : super(key: key);
+  NavigateDrawer({Key? key, required this.user, this.uid}) : super(key: key);
 
   @override
   _NavigateDrawerState createState() => _NavigateDrawerState();
 }
 
 class _NavigateDrawerState extends State<NavigateDrawer> {
-  final firestoreInstance = FirebaseFirestore.instance;
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -106,9 +135,8 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
         children: <Widget>[
           UserAccountsDrawerHeader(
 
-            // TODO: Get Account information From FirebaseFirestorm
-              accountName: Text("TESTE"),
-              accountEmail: Text("TESTE"),
+              accountName: Text(widget.user.name),
+              accountEmail: Text(widget.user.username),
               decoration: BoxDecoration(
                 color: Colors.green,
               ),
