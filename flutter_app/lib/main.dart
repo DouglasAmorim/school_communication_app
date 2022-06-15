@@ -14,14 +14,14 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:splashscreen/splashscreen.dart';
 
-Future<void> _messageHandler(RemoteMessage message) async {
-  print('background message ${message.notification!.body}');
-}
+// Future<void> _messageHandler(RemoteMessage message) async {
+//   print('background message ${message.notification!.body}');
+// }
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_messageHandler);
+  // FirebaseMessaging.onBackgroundMessage(_messageHandler);
   runApp(ComunicationApp());
 }
 

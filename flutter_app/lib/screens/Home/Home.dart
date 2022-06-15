@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 
 import '../../Helpers/Strings.dart';
@@ -11,6 +13,10 @@ import '../../models/ContactsItemList.dart';
 import '../../models/EstruturaMensagem.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
+
+Future<void> _messageHandler(RemoteMessage message) async {
+  print('background message ${message.notification!.body}');
+}
 
 class Home extends StatelessWidget {
   Home({this.uid});
@@ -63,6 +69,29 @@ class ContactsList extends StatefulWidget {
 
 class _ContactsListState extends State<ContactsList> {
   final firestoreInstance = FirebaseFirestore.instance;
+  late FirebaseMessaging messaging;
+
+  @override
+  void initState() {
+    messaging = FirebaseMessaging.instance;
+
+    print("banana user id ${widget.user.id}");
+    messaging.subscribeToTopic(widget.user.id);
+
+    messaging.getToken().then((value) {
+      print("banana ${value}");
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("message received");
+      print(event.notification!.body);
+      print(event.data.values);
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      print("Message clicked!");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
