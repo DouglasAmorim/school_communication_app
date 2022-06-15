@@ -3,7 +3,7 @@ import '../../screens/Mensagem/Mensagem.dart';
 import '/models/Users/User.dart';
 
 class ContactItemCell extends StatelessWidget {
-  final UserData user;
+  final ContactData user;
 
   ContactItemCell(this.user);
 

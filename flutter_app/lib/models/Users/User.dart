@@ -17,3 +17,11 @@ class UserData {
 
   UserData._internal();
 }
+
+class ContactData {
+  String id = '';
+  String type = '';
+  String turma = '';
+  String name = '';
+  String username = '';
+}

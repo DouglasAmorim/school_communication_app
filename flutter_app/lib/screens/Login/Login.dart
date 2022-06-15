@@ -7,10 +7,11 @@ import 'package:tcc_ifsc/models/Users/Estudante.dart';
 import 'package:tcc_ifsc/models/Users/Parents.dart';
 import 'package:tcc_ifsc/models/Users/Professor.dart';
 import 'package:tcc_ifsc/screens/Dashboard/ParentsDashboard.dart';
-import 'package:tcc_ifsc/screens/Dashboard/StudentsDashboard.dart';
 import 'package:tcc_ifsc/screens/Dashboard/TeacherDashboard.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+import '../Dashboard/StudentsDashboard.dart';
 
 const _tituloAppBar = 'Login Screen';
 const _rotuloCampoUserName = 'Nome de Usuário';

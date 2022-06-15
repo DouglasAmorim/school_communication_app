@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 
+import '../../Helpers/Strings.dart';
 import '../../models/ContactsItemList.dart';
 import '../../models/EstruturaMensagem.dart';
 import '../../models/Users/User.dart';
@@ -48,7 +49,7 @@ class Home extends StatelessWidget {
 class ContactsList extends StatefulWidget {
   final UserData user;
   final String? uid;
-  final List<UserData> _contactsList = [];
+  final List<ContactData> _contactsList = [];
   var _getContacts = true;
 
   ContactsList({Key? key, required this.user, this.uid}) : super(key: key);
@@ -84,6 +85,7 @@ class _ContactsListState extends State<ContactsList> {
 
                 final contact = widget._contactsList[indice];
                 final List<EstruturaMensagem> lista = [];
+                print("banana contact ${indice} ${contact.username} ${contact.name} ${contact.id}");
 
                 return ContactItemCell(contact);
               },
@@ -95,7 +97,6 @@ class _ContactsListState extends State<ContactsList> {
   }
 
   void _getUserInformation() {
-    print("Banana get user information ${widget.user.id}");
     firestoreInstance.collection("users")
       .where("id", isEqualTo: widget.user.id)
       .get()
@@ -103,14 +104,179 @@ class _ContactsListState extends State<ContactsList> {
         query.docs.forEach((result) {
 
           final data = result.data();
-          widget.user.id = data["id"];
-          widget.user.name = data["name"];
-          widget.user.matricula = data["matricula"];
-          widget.user.username = data["username"];
-          widget.user.type = data["type"];
-          widget.user.turma = data["Turma"];
+
+          widget.user.id = data[Strings.idFirestore];
+          widget.user.name = data[Strings.nameFirestore];
+          widget.user.matricula = data[Strings.matriculaFirestore];
+          widget.user.username = data[Strings.usernameFirestore];
+          widget.user.type = data[Strings.typeFirestore];
+          widget.user.turma = data[Strings.turmaFirestore];
         });
+
+        _getUserContacts();
     });
+  }
+
+
+  void _getUserContacts() {
+    print("Banana get user contacts ${widget.user.id}");
+    print("Banana get user contacts ${widget.user.turma}");
+    print("Banana get user contacts ${widget.user.type}");
+
+    switch(widget.user.type) {
+      case "Adm":
+        firestoreInstance.collection("users")
+            .where("id", isNotEqualTo: widget.user.id)
+            .get()
+            .then((query) {
+          query.docs.forEach((result) {
+            final data = result.data();
+            final contact = ContactData();
+
+            contact.id = data[Strings.idFirestore];
+            contact.name = data[Strings.nameFirestore];
+            contact.username = data[Strings.usernameFirestore];
+            contact.type = data[Strings.typeFirestore];
+            contact.turma = data[Strings.turmaFirestore];
+
+            setState(() {
+              widget._contactsList.add(contact);
+            });
+          });
+        });
+        break;
+      case "Teacher":
+        firestoreInstance.collection("users")
+            .where("Turma", isEqualTo: widget.user.turma)
+            .get()
+            .then((query) {
+              query.docs.forEach((result) {
+                final data = result.data();
+                final contact = ContactData();
+
+                if(data["Type"] != widget.user.type) {
+
+                  print("banana data Type ${data["Type"]}");
+
+                  contact.id = data[Strings.idFirestore];
+                  contact.name = data[Strings.nameFirestore];
+                  contact.username = data[Strings.usernameFirestore];
+                  contact.type = data[Strings.typeFirestore];
+                  contact.turma = data[Strings.turmaFirestore];
+
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
+              });
+            });
+
+        break;
+      case "Student":
+        firestoreInstance.collection("users")
+            .where("Turma", isEqualTo: widget.user.turma)
+            .get()
+            .then((query) {
+              print("banana query ${query}");
+
+              query.docs.forEach((result) {
+                print("banana query ${result.data()}");
+
+                final data = result.data();
+                final contact = ContactData();
+
+                if(data["Type"] != "Student")  {
+                  if(data["Type"] != "Adm") {
+                    if(data["Type"] != "Parents") {
+
+                      contact.id = data[Strings.idFirestore];
+                      contact.name = data[Strings.nameFirestore];
+                      contact.username = data[Strings.usernameFirestore];
+                      contact.type = data[Strings.typeFirestore];
+                      contact.turma = data[Strings.turmaFirestore];
+
+                      setState(() {
+                        widget._contactsList.add(contact);
+                      });
+                    }
+                  }
+                }
+              });
+            });
+        break;
+      case "Parents":
+        firestoreInstance.collection("users")
+            .where("Turma", isEqualTo: widget.user.turma)
+            .get()
+            .then((query) {
+              query.docs.forEach((result) {
+                final data = result.data();
+                final contact = ContactData();
+                if(data["Type"] != widget.user.type) {
+                  if (data["Type"] != "Adm") {
+                    if (data["Type"] != "Students") {
+
+                      contact.id = data[Strings.idFirestore];
+                      contact.name = data[Strings.nameFirestore];
+                      contact.username = data[Strings.usernameFirestore];
+                      contact.type = data[Strings.typeFirestore];
+                      contact.turma = data[Strings.turmaFirestore];
+
+                      setState(() {
+                        widget._contactsList.add(contact);
+                      });
+                    }
+                  }
+                }
+              });
+            });
+        break;
+      case "School":
+        firestoreInstance.collection("users")
+            .where("id", isNotEqualTo: widget.user.id)
+            .get()
+            .then((query) {
+              query.docs.forEach((result) {
+                final data = result.data();
+                final contact = ContactData();
+
+                contact.id = data[Strings.idFirestore];
+                contact.name = data[Strings.nameFirestore];
+                contact.username = data[Strings.usernameFirestore];
+                contact.type = data[Strings.typeFirestore];
+                contact.turma = data[Strings.turmaFirestore];
+
+                setState(() {
+                  widget._contactsList.add(contact);
+                });
+              });
+            });
+        break;
+      default:
+
+        print("Banana get user contacts default case");
+        firestoreInstance.collection("users")
+            .get()
+            .then((query) {
+          query.docs.forEach((result) {
+            final data = result.data();
+            final contact = ContactData();
+
+            contact.id = data[Strings.idFirestore];
+            contact.name = data[Strings.nameFirestore];
+            contact.username = data[Strings.usernameFirestore];
+            contact.type = data[Strings.typeFirestore];
+            contact.turma = data[Strings.turmaFirestore];
+
+            setState(() {
+              widget._contactsList.add(contact);
+            });
+          });
+        });
+        break;
+    }
+
+    widget._getContacts = false;
   }
 }
 
