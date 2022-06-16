@@ -3,21 +3,27 @@ import '../../screens/Mensagem/Mensagem.dart';
 import '/models/Users/User.dart';
 
 class ContactItemCell extends StatelessWidget {
-  final ContactData user;
 
-  ContactItemCell(this.user);
+  final ContactData userContact;
+  final UserData userData;
+  ContactItemCell(this.userContact, this.userData);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         leading: Icon(Icons.message),
-        title: Text(user.name),
+        title: Text(userContact.name),
         onTap: () {
-          // TODO: Implementar Redirecionamento para tela mensagens
-          // Navigator.push(context, MaterialPageRoute(builder: (context) {
-          //
-          // }));
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return Mensagem(messages: this.userContact.messages,
+                receiverQueueId: this.userContact.id,
+                receiverName: this.userContact.name,
+                typeReceiver: this.userContact.type,
+                senderQueueId: this.userData.id,
+                senderName: this.userData.name,
+                typeSender: this.userData.type);
+          }));
         },
       ),
     );

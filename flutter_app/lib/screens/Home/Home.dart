@@ -116,7 +116,7 @@ class _ContactsListState extends State<ContactsList> {
                 final List<EstruturaMensagem> lista = [];
                 print("banana contact ${indice} ${contact.username} ${contact.name} ${contact.id}");
 
-                return ContactItemCell(contact);
+                return ContactItemCell(contact, widget.user);
               },
             ),
           ],

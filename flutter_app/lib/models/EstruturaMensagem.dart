@@ -1,11 +1,11 @@
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 
 class EstruturaMensagem {
-  String? mensagem;
+  String? message;
   String? date;
-  bool? isReceived;
-  int? contactId;
+  String? receiverId;
+  String? senderId;
   typeEnum? contactType;
 
-  EstruturaMensagem({this.mensagem, this.date, this.isReceived, this.contactId, this.contactType});
+  EstruturaMensagem({this.message, this.date, this.receiverId, this.senderId, this.contactType});
 }

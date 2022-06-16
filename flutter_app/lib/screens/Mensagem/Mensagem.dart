@@ -4,22 +4,20 @@ import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 
-const _tituloAppBar = 'Dashboard';
-const _dicaCampoMensagem = 'olá ! ';
-const _rotuloCampoMensagem = 'Nova Mensagem';
-const _textoBotaoConfirmar = 'Enviar';
+const _labelMessageField = 'Nova Mensagem';
+const _sendButtonText = 'Enviar';
 
 class Mensagem extends StatefulWidget {
-  final List<EstruturaMensagem> mensagens;
-  final String destinatarioNome;
-  final String remetenteNome;
-  final int destinatarioQueueId;
-  final int destinatarioId;
-  final int remetenteId;
-  final typeEnum remetenteType;
-  final typeEnum destinatarioType;
+  final List<EstruturaMensagem> messages;
 
-  Mensagem({Key? key, required this.mensagens, required this.destinatarioId, required this.destinatarioNome, required this.destinatarioQueueId, required this.remetenteId, required this.remetenteNome, required this.remetenteType, required this.destinatarioType}) : super(key: key);
+  final String receiverName;
+  final String senderName;
+  final String receiverQueueId;
+  final String senderQueueId;
+  final String typeSender;
+  final String typeReceiver;
+
+  Mensagem({Key? key, required this.messages, required this.receiverQueueId, required this.receiverName, required this.typeReceiver, required this.senderQueueId, required this.senderName, required this.typeSender}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -27,105 +25,66 @@ class Mensagem extends StatefulWidget {
   }
 }
 
-
 class MensagemState extends State<Mensagem> {
-  final TextEditingController _controllerMensagem = TextEditingController();
+  final TextEditingController _controllerMessage = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(_tituloAppBar),
-        ),
+      appBar: AppBar(
+        title: Text(widget.receiverName),
+      ),
+
 
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
             ListView.builder(
-              itemCount: widget.mensagens.length,
+              itemCount: widget.messages.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemBuilder: (context, indice) {
-                final contactName = widget.mensagens[indice];
-                return MensagensItemList(contactName.mensagem!);
+                final contactName = widget.messages[indice];
+                return MensagensItemList(contactName.message!);
               },
             ),
-            Editor(controller: _controllerMensagem, dica: _dicaCampoMensagem , rotulo: _rotuloCampoMensagem),
-            ElevatedButton(
-              onPressed: () => _envioMensagem(context),
-              child: Text(_textoBotaoConfirmar),
-
-            ),
           ],
+        ),
+      ),
+
+      bottomNavigationBar: TextField(
+        controller: _controllerMessage,
+        decoration: InputDecoration(
+          hintText: _labelMessageField,
+          suffixIcon: IconButton(
+            onPressed: () => _envioMensagem(context),
+            icon: Icon(Icons.send),
+          ),
         ),
       ),
     );
   }
 
-  String getDestinatario() {
-    switch(widget.destinatarioType) {
-      case typeEnum.school:
-        return "escola";
-      case typeEnum.parents:
-        return "pais";
-      case typeEnum.student:
-        return "alunos";
-      case typeEnum.teacher:
-        return "professores";
-      default:
-        return "escola";
-    }
-  }
-
-  String getRemetente() {
-    switch(widget.remetenteType) {
-      case typeEnum.teacher:
-        return "professor";
-      case typeEnum.parents:
-        return "pais";
-      case typeEnum.student:
-        return "alunos";
-      case typeEnum.school:
-        return "escola";
-      default:
-        return "alunos";
-
-    }
-  }
-
   void _envioMensagem(BuildContext context) {
-    final String? mensagem = _controllerMensagem.text;
+    final String? message = _controllerMessage.text;
+
     // TODO: Tratar envio da mensagem
-    if(mensagem != null) {
-
-      final String url = "http://localhost:5000/${getRemetente()}/send/${getDestinatario()}";
-
-      ApiImpl().sendMessage(url, widget.destinatarioId, widget.destinatarioQueueId, widget.remetenteNome, widget.remetenteId, mensagem).then((value) {
-        if(value) {
-          setState(() {
-            final EstruturaMensagem estrutura = EstruturaMensagem(mensagem: mensagem, date: 'now', isReceived: false, contactId: widget.destinatarioId, contactType: widget.destinatarioType);
-            widget.mensagens.add(estrutura);
-            _controllerMensagem.text = "";
-          });
-        } else {
-          // TODO: SHOW ERROR MESSAGE
-        }
-      });
+    if(message != null) {
     }
   }
 }
 
 class MensagensItemList extends StatelessWidget {
-  final String _mensagem;
+  final String _message;
 
-  MensagensItemList(this._mensagem);
+  MensagensItemList(this._message);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         leading: Icon(Icons.message),
-        title: Text(_mensagem),
+        title: Text(_message),
       ),
     );
   }

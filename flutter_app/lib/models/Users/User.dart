@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
+import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 
 class UserData {
   String id = '';
@@ -24,4 +25,5 @@ class ContactData {
   String turma = '';
   String name = '';
   String username = '';
+  final List<EstruturaMensagem> messages = [];
 }
