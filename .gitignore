@@ -226,6 +226,6 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 ### Secrets Directory ###
-/lib/Auth/secrets.dart
+*secrets.dart
 
 # End of https://www.toptal.com/developers/gitignore/api/dart,flutter,androidstudio
