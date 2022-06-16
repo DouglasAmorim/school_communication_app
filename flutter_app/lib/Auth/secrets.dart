@@ -1,1 +1,0 @@
-var scretApiMessaging = "AAAA9ViPA18:APA91bFwBB2jcBlhvb3pm9OcZonCG2B3BZ82MaX70oYQdOu9_5BUpisjqKzrglbRi5z_ehjxU9ggZ1m0pt0WpNBeEFkbPMrm3aKqzy21xJ0XoF-AVDkBsZq42fzop5gSVtm0t3GtzRhT";
