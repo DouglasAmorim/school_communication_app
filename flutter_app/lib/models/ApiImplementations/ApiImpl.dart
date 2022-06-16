@@ -17,7 +17,7 @@ import '../CaixaEntradaResponses/CaixaEntradaPais.dart';
 import '../CaixaEntradaResponses/CaixaEntradaProfessores.dart';
 import '../Users/Estudante.dart';
 import '../Users/Professor.dart';
-import 'package:tcc_ifsc/FcmMessaging/secrets.dart';
+import 'package:tcc_ifsc/Auth/secrets.dart';
 
 class ApiImpl {
 Future<String> sendNotification(EstruturaMensagem message) async {
