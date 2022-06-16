@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:tcc_ifsc/models/CaixaEntradaResponses/CaixaEntradaAluno.dart';
+import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 import 'package:tcc_ifsc/models/LoginResponses/LoginParentsResponse.dart';
 import 'package:tcc_ifsc/models/LoginResponses/LoginStudentResponse.dart';
 import 'package:tcc_ifsc/models/LoginResponses/LoginTeacherResponse.dart';
@@ -16,8 +17,45 @@ import '../CaixaEntradaResponses/CaixaEntradaPais.dart';
 import '../CaixaEntradaResponses/CaixaEntradaProfessores.dart';
 import '../Users/Estudante.dart';
 import '../Users/Professor.dart';
+import 'package:tcc_ifsc/FcmMessaging/secrets.dart';
 
 class ApiImpl {
+Future<String> sendNotification(EstruturaMensagem message) async {
+  final postUrl = 'https://fcm.googleapis.com/fcm/send';
+
+  String toParams = "/topics/"+'${message.receiverId}';
+
+  final data = {
+    "notification": {
+      "body": message.message,
+      "title": message.message
+    },
+    "priority":"high",
+    "data": {
+      "Sender-Name": "${message.senderName}",
+      "Sender-Queue-Id": "${message.senderId}",
+      "message": "${message.message}",
+      "sendDate": "${message.date}",
+    },
+    "to": "${toParams}"
+  };
+
+  final headers = {
+    'content-type': 'application/json',
+    'Authorization': 'key=${secretApiMessaging}'
+  };
+
+  final response = await http.post(Uri.parse(postUrl),
+      body: json.encode(data),
+      encoding: Encoding.getByName('utf-8'),
+      headers: headers);
+
+  if (response.statusCode == 200) {
+    return(response.body);
+  } else {
+    throw Exception('Failed to send Message');
+  }
+}
 
   Future<Professor> teacherLogin(String username, String password) async {
 

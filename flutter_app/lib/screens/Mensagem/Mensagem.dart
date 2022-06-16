@@ -3,6 +3,7 @@ import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
+import 'package:intl/intl.dart';
 
 const _labelMessageField = 'Nova Mensagem';
 const _sendButtonText = 'Enviar';
@@ -44,8 +45,14 @@ class MensagemState extends State<Mensagem> {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemBuilder: (context, indice) {
-                final contactName = widget.messages[indice];
-                return MensagensItemList(contactName.message!);
+                final message = widget.messages[indice];
+                Color color = Colors.white;
+
+                if (message.senderId != widget.senderQueueId) {
+                  color = Colors.greenAccent;
+                }
+
+                return MensagensItemList(message.message!, color);
               },
             ),
           ],
@@ -68,16 +75,38 @@ class MensagemState extends State<Mensagem> {
   void _envioMensagem(BuildContext context) {
     final String? message = _controllerMessage.text;
 
-    // TODO: Tratar envio da mensagem
     if(message != null) {
+
+      final EstruturaMensagem msg = EstruturaMensagem(
+          message: message,
+          date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
+          senderId: widget.senderQueueId,
+          senderName: widget.senderName,
+          senderType: widget.typeSender,
+          receiverId: widget.receiverQueueId,
+          receiverName: widget.receiverName,
+          receiverType: widget.typeReceiver,
+      );
+
+      ApiImpl().sendNotification(msg).then((value) => {
+        // TODO: Armazenar localmente a mensagem enviada
+        _controllerMessage.clear(),
+        setState(() {
+          widget.messages.add(msg);
+        }),
+      });
     }
   }
 }
 
 class MensagensItemList extends StatelessWidget {
   final String _message;
+  final Color _color;
 
-  MensagensItemList(this._message);
+  MensagensItemList(this._message, this._color);
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +115,7 @@ class MensagensItemList extends StatelessWidget {
         leading: Icon(Icons.message),
         title: Text(_message),
       ),
+      color: _color,
     );
   }
 }
