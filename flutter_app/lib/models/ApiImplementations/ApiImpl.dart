@@ -31,12 +31,18 @@ Future<String> sendNotification(EstruturaMensagem message) async {
       "title": message.message
     },
     "priority":"high",
+
     "data": {
       "Sender-Name": "${message.senderName}",
       "Sender-Queue-Id": "${message.senderId}",
+      "Sender-Type": "${message.senderType}",
+      "Receiver-Queue-Id": "${message.receiverId}",
+      "Receiver-Name": "${message.receiverName}",
+      "Receiver-Type": "${message.receiverType}",
       "message": "${message.message}",
       "sendDate": "${message.date}",
     },
+
     "to": "${toParams}"
   };
 

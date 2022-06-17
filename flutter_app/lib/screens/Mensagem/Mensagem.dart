@@ -42,6 +42,7 @@ class MensagemState extends State<Mensagem> {
         child: Column(
           children: <Widget>[
             ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
               itemCount: widget.messages.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,

@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
+import 'package:intl/intl.dart';
 
 import '../../Helpers/Strings.dart';
 import '../../models/ContactsItemList.dart';
@@ -15,8 +16,19 @@ import '../../models/EstruturaMensagem.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
 
-Future<void> _messageHandler(RemoteMessage message) async {
-  print('background message ${message.notification!.body}');
+Future<void> _messageHandler(RemoteMessage event) async {
+  final messageReceived = EstruturaMensagem(
+      message: event.data['message'],
+      date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()) ,
+      receiverId: event.data['Receiver-Queue-Id'],
+      receiverName: event.data['Receiver-Name'],
+      receiverType: event.data['Receiver-Type'],
+      senderId: event.data['Sender-Queue-Id'],
+      senderName: event.data['Sender-Name'],
+      senderType: event.data['Sender-Type']
+  );
+
+  FileHandler.instance.writeMessages(messageReceived);
 }
 
 class Home extends StatelessWidget {
@@ -69,38 +81,77 @@ class ContactsList extends StatefulWidget {
   }
 }
 
-class _ContactsListState extends State<ContactsList> {
+class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver {
   final firestoreInstance = FirebaseFirestore.instance;
   late FirebaseMessaging messaging;
 
   @override
   void initState() {
-    messaging = FirebaseMessaging.instance;
+    WidgetsBinding.instance.addObserver(this);
 
-    print("banana user id ${widget.user.id}");
+    print("HERE CHECAR");
+    messaging = FirebaseMessaging.instance;
+    FirebaseMessaging.onBackgroundMessage(_messageHandler);
+
     messaging.subscribeToTopic(widget.user.id);
 
     messaging.getToken().then((value) {
-      print("banana ${value}");
+      print("User Token ${value}");
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-      print("message received");
-      print(event.notification!.body);
-      print(event.data.values);
+
+      final messageReceived = EstruturaMensagem(
+        message: event.data['message'],
+        date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
+        receiverId: event.data['Receiver-Queue-Id'],
+        receiverName: event.data['Receiver-Name'],
+        receiverType: event.data['Receiver-Type'],
+        senderId: event.data['Sender-Queue-Id'],
+        senderName: event.data['Sender-Name'],
+        senderType: event.data['Sender-Type']
+      );
+
+      FileHandler.instance.writeMessages(messageReceived);
+
+      print("HERE RECEIVED MESSAGE");
+      setState(() {
+        widget._messageList.add(messageReceived);
+      });
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print("Message clicked!");
+      // TODO: Redirecionar para Tela do contato da mensagem
     });
+
+    if(widget._getContacts) {
+      _getUserInformation();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  late AppLifecycleState _notification;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+  print("HERE: ${state}");
+    setState(() {
+      _notification = state;
+    });
+
+    if(state == AppLifecycleState.resumed) {
+      print("HERE: ${state}");
+      _getUserMessages();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if(widget._getContacts) {
-      _getUserInformation();
-    }
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -112,8 +163,6 @@ class _ContactsListState extends State<ContactsList> {
               shrinkWrap: true,
 
               itemBuilder: (context, indice) {
-                // TODO: Implementar get das mensagens
-
                 final contact = widget._contactsList[indice];
                 final List<EstruturaMensagem> lista = [];
 
@@ -137,7 +186,6 @@ class _ContactsListState extends State<ContactsList> {
 
   void _getUserMessages() {
     FileHandler.instance.readMessages().then((value) => {
-      print("Banana ${value.length}" ),
       setState(() {
         widget._messageList = value;
       }),
@@ -145,6 +193,8 @@ class _ContactsListState extends State<ContactsList> {
   }
 
   void _getUserInformation() {
+    widget._getContacts = false;
+    print("HERE Get User Information");
     firestoreInstance.collection("users")
       .where("id", isEqualTo: widget.user.id)
       .get()
@@ -169,8 +219,11 @@ class _ContactsListState extends State<ContactsList> {
   void _getUserContacts() {
     widget._contactsList = [];
 
+    print("HERE getUserContacts ${widget._contactsList.length}");
+
     switch(widget.user.type) {
       case "Adm":
+        print("HERE adm");
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -185,13 +238,16 @@ class _ContactsListState extends State<ContactsList> {
             contact.type = data[Strings.typeFirestore];
             contact.turma = data[Strings.turmaFirestore];
 
-            setState(() {
-              widget._contactsList.add(contact);
-            });
+            if(widget._contactsList.contains(contact) == false ) {
+              setState(() {
+                widget._contactsList.add(contact);
+              });
+            }
           });
         });
         break;
       case "Teacher":
+        print("HERE Teacher");
         firestoreInstance.collection("users")
             .where("Turma", isEqualTo: widget.user.turma)
             .get()
@@ -202,34 +258,35 @@ class _ContactsListState extends State<ContactsList> {
 
                 if(data["Type"] != widget.user.type) {
 
-                  print("banana data Type ${data["Type"]}");
-
                   contact.id = data[Strings.idFirestore];
                   contact.name = data[Strings.nameFirestore];
                   contact.username = data[Strings.usernameFirestore];
                   contact.type = data[Strings.typeFirestore];
                   contact.turma = data[Strings.turmaFirestore];
 
-                  setState(() {
-                    widget._contactsList.add(contact);
-                  });
+                  if(widget._contactsList.contains(contact) == false ) {
+                    setState(() {
+                      widget._contactsList.add(contact);
+                    });
+                  }
                 }
               });
             });
 
         break;
       case "Student":
+        print("HERE Student");
         firestoreInstance.collection("users")
             .where("Turma", isEqualTo: widget.user.turma)
             .get()
             .then((query) {
-              print("banana query ${query}");
 
               query.docs.forEach((result) {
-                print("banana query ${result.data()}");
 
                 final data = result.data();
                 final contact = ContactData();
+
+                print("HERE ${data["Type"]} ${data["Name"]} ${data["id"]}" );
 
                 if(data["Type"] != "Student")  {
                   if(data["Type"] != "Adm") {
@@ -241,9 +298,14 @@ class _ContactsListState extends State<ContactsList> {
                       contact.type = data[Strings.typeFirestore];
                       contact.turma = data[Strings.turmaFirestore];
 
-                      setState(() {
-                        widget._contactsList.add(contact);
-                      });
+                      print("HERE ${widget._contactsList.contains(contact)}");
+                      print("HERE ${widget._contactsList.length}");
+
+                      if(widget._contactsList.contains(contact) == false ) {
+                        setState(() {
+                          widget._contactsList.add(contact);
+                        });
+                      }
                     }
                   }
                 }
@@ -251,6 +313,7 @@ class _ContactsListState extends State<ContactsList> {
             });
         break;
       case "Parents":
+        print("HERE parents");
         firestoreInstance.collection("users")
             .where("Turma", isEqualTo: widget.user.turma)
             .get()
@@ -268,9 +331,11 @@ class _ContactsListState extends State<ContactsList> {
                       contact.type = data[Strings.typeFirestore];
                       contact.turma = data[Strings.turmaFirestore];
 
-                      setState(() {
-                        widget._contactsList.add(contact);
-                      });
+                      if(widget._contactsList.contains(contact) == false ) {
+                        setState(() {
+                          widget._contactsList.add(contact);
+                        });
+                      }
                     }
                   }
                 }
@@ -278,6 +343,7 @@ class _ContactsListState extends State<ContactsList> {
             });
         break;
       case "School":
+        print("HERE School");
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -292,15 +358,16 @@ class _ContactsListState extends State<ContactsList> {
                 contact.type = data[Strings.typeFirestore];
                 contact.turma = data[Strings.turmaFirestore];
 
-                setState(() {
-                  widget._contactsList.add(contact);
-                });
+                if(widget._contactsList.contains(contact) == false ) {
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
               });
             });
         break;
       default:
-
-        print("Banana get user contacts default case");
+        print("HERE Default");
         firestoreInstance.collection("users")
             .get()
             .then((query) {
@@ -314,20 +381,18 @@ class _ContactsListState extends State<ContactsList> {
             contact.type = data[Strings.typeFirestore];
             contact.turma = data[Strings.turmaFirestore];
 
-            setState(() {
-              widget._contactsList.add(contact);
-            });
+            if(widget._contactsList.contains(contact) == false ) {
+              setState(() {
+                widget._contactsList.add(contact);
+              });
+            }
           });
         });
         break;
     }
-
-    widget._getContacts = false;
     _getUserMessages();
   }
 }
-
-
 
 class NavigateDrawer extends StatefulWidget {
   final String? uid;
