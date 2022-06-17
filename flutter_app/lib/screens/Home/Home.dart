@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
+import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
 
 import '../../Helpers/Strings.dart';
 import '../../models/ContactsItemList.dart';
@@ -55,7 +56,8 @@ class Home extends StatelessWidget {
 class ContactsList extends StatefulWidget {
   final UserData user;
   final String? uid;
-  final List<ContactData> _contactsList = [];
+  List<ContactData> _contactsList = [];
+  List<EstruturaMensagem> _messageList = [];
   var _getContacts = true;
 
   ContactsList({Key? key, required this.user, this.uid}) : super(key: key);
@@ -114,7 +116,15 @@ class _ContactsListState extends State<ContactsList> {
 
                 final contact = widget._contactsList[indice];
                 final List<EstruturaMensagem> lista = [];
-                print("banana contact ${indice} ${contact.username} ${contact.name} ${contact.id}");
+
+                for (var i = 0; i < widget._messageList.length; i++) {
+                  if(widget._messageList[i].receiverId == contact.id
+                      || widget._messageList[i].senderId == contact.id)  {
+                    lista.add(widget._messageList[i]);
+                  }
+                }
+
+                contact.messages = lista;
 
                 return ContactItemCell(contact, widget.user);
               },
@@ -123,6 +133,15 @@ class _ContactsListState extends State<ContactsList> {
         ),
       ),
     );
+  }
+
+  void _getUserMessages() {
+    FileHandler.instance.readMessages().then((value) => {
+      print("Banana ${value.length}" ),
+      setState(() {
+        widget._messageList = value;
+      }),
+    });
   }
 
   void _getUserInformation() {
@@ -148,9 +167,7 @@ class _ContactsListState extends State<ContactsList> {
 
 
   void _getUserContacts() {
-    print("Banana get user contacts ${widget.user.id}");
-    print("Banana get user contacts ${widget.user.turma}");
-    print("Banana get user contacts ${widget.user.type}");
+    widget._contactsList = [];
 
     switch(widget.user.type) {
       case "Adm":
@@ -306,6 +323,7 @@ class _ContactsListState extends State<ContactsList> {
     }
 
     widget._getContacts = false;
+    _getUserMessages();
   }
 }
 

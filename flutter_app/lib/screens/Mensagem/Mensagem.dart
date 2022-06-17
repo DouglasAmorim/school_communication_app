@@ -4,6 +4,7 @@ import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 import 'package:intl/intl.dart';
+import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
 
 const _labelMessageField = 'Nova Mensagem';
 const _sendButtonText = 'Enviar';
@@ -52,7 +53,7 @@ class MensagemState extends State<Mensagem> {
                   color = Colors.greenAccent;
                 }
 
-                return MensagensItemList(message.message!, color);
+                return MensagensItemList(message.message, color);
               },
             ),
           ],
@@ -89,7 +90,7 @@ class MensagemState extends State<Mensagem> {
       );
 
       ApiImpl().sendNotification(msg).then((value) => {
-        // TODO: Armazenar localmente a mensagem enviada
+        FileHandler.instance.writeMessages(msg),
         _controllerMessage.clear(),
         setState(() {
           widget.messages.add(msg);
@@ -104,9 +105,6 @@ class MensagensItemList extends StatelessWidget {
   final Color _color;
 
   MensagensItemList(this._message, this._color);
-
-
-
 
   @override
   Widget build(BuildContext context) {

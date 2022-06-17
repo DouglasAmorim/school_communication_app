@@ -25,5 +25,5 @@ class ContactData {
   String turma = '';
   String name = '';
   String username = '';
-  final List<EstruturaMensagem> messages = [];
+  List<EstruturaMensagem> messages = [];
 }
