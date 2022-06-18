@@ -5,4 +5,5 @@ class Strings {
   static const String turmaFirestore = "Turma";
   static const String matriculaFirestore = "Matricula";
   static const String idFirestore = "id";
+  static const String validFirestore = "Valid";
 }

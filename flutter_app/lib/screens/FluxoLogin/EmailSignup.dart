@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
+import '../../Helpers/Strings.dart';
 import '../Home/Home.dart';
 
 class EmailSignUp extends StatefulWidget {
@@ -158,12 +159,13 @@ class _EmailSignUpState extends State<EmailSignUp> {
         email: emailController.text, password: passwordController.text)
         .then((result) {
           firestoreInstance.collection("users").add({
-            "Name": nameController.text,
-            "Username": usernameController.text,
-            "Type": "",
-            "Turma": "",
-            "id": result.user!.uid,
-            "Matricula": matriculaController.text
+            Strings.nameFirestore: nameController.text,
+            Strings.usernameFirestore: usernameController.text,
+            Strings.typeFirestore: "",
+            Strings.turmaFirestore: "",
+            Strings.validFirestore: "False",
+            Strings.idFirestore: result.user!.uid,
+            Strings.matriculaFirestore: matriculaController.text
           }).then( (value) {
             print("Correct save on firestore ${value.id}");
             isLoading = false;

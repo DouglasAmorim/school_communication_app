@@ -118,6 +118,15 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       // TODO: Redirecionar para Tela do contato da mensagem
+      // Navigator.push(context, MaterialPageRoute(builder: (context) {
+      //   return Mensagem(messages: this.userContact.messages,
+      //       receiverQueueId: this.userContact.id,
+      //       receiverName: this.userContact.name,
+      //       typeReceiver: this.userContact.type,
+      //       senderQueueId: this.userData.id,
+      //       senderName: this.userData.name,
+      //       typeSender: this.userData.type);
+      // }));
     });
 
     if(widget._getContacts) {
@@ -157,19 +166,35 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               shrinkWrap: true,
 
               itemBuilder: (context, indice) {
-                final contact = widget._contactsList[indice];
-                final List<EstruturaMensagem> lista = [];
+                if (widget.user.valid != "True") {
+                  final contact = widget._contactsList[indice];
+                  final List<EstruturaMensagem> lista = [];
 
-                for (var i = 0; i < widget._messageList.length; i++) {
-                  if(widget._messageList[i].receiverId == contact.id
-                      || widget._messageList[i].senderId == contact.id)  {
-                    lista.add(widget._messageList[i]);
+                  for (var i = 0; i < widget._messageList.length; i++) {
+                    if(widget._messageList[i].receiverId == contact.id
+                        || widget._messageList[i].senderId == contact.id)  {
+                      lista.add(widget._messageList[i]);
+                    }
                   }
+
+                  contact.messages = lista;
+
+                  return EmptyItemCell(contact, widget.user);
+                } else {
+                  final contact = widget._contactsList[indice];
+                  final List<EstruturaMensagem> lista = [];
+
+                  for (var i = 0; i < widget._messageList.length; i++) {
+                    if(widget._messageList[i].receiverId == contact.id
+                        || widget._messageList[i].senderId == contact.id)  {
+                      lista.add(widget._messageList[i]);
+                    }
+                  }
+
+                  contact.messages = lista;
+
+                  return ContactItemCell(contact, widget.user);
                 }
-
-                contact.messages = lista;
-
-                return ContactItemCell(contact, widget.user);
               },
             ),
           ],
@@ -209,6 +234,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           widget.user.username = data[Strings.usernameFirestore];
           widget.user.type = data[Strings.typeFirestore];
           widget.user.turma = data[Strings.turmaFirestore];
+          widget.user.valid = data[Strings.validFirestore];
         });
 
         _getUserContacts();
@@ -355,8 +381,27 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             });
         break;
       default:
-        // TODO: User não possui Type
-        break;
+        firestoreInstance.collection("users")
+            .where("Type", isEqualTo: "School")
+            .get().then((query) {
+              query.docs.forEach((result) {
+                final data = result.data();
+                final contact = ContactData();
+
+                contact.id = data[Strings.idFirestore];
+                contact.name = data[Strings.nameFirestore];
+                contact.username = data[Strings.usernameFirestore];
+                contact.type = data[Strings.typeFirestore];
+                contact.turma = data[Strings.turmaFirestore];
+
+                if(widget._contactsList.contains(contact) == false ) {
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
+              });
+          });
+          break;
     }
     _getUserMessages();
   }

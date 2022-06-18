@@ -10,6 +10,7 @@ class UserData {
   String matricula = '';
   String name = '';
   String username = '';
+  String valid = '';
 
   static final UserData shared = UserData._internal();
 
