@@ -11,7 +11,6 @@ import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
 import 'package:intl/intl.dart';
 
 import '../../Helpers/Strings.dart';
-import '../../models/ContactsItemList.dart';
 import '../../models/EstruturaMensagem.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
