@@ -15,6 +15,7 @@ import '../../models/ContactsItemList.dart';
 import '../../models/EstruturaMensagem.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
+import '../Mensagem/Mensagem.dart';
 
 Future<void> _messageHandler(RemoteMessage event) async {
   final messageReceived = EstruturaMensagem(
@@ -98,7 +99,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-
       final messageReceived = EstruturaMensagem(
         message: event.data['message'],
         date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
@@ -116,17 +116,49 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
       });
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      // TODO: Redirecionar para Tela do contato da mensagem
-      // Navigator.push(context, MaterialPageRoute(builder: (context) {
-      //   return Mensagem(messages: this.userContact.messages,
-      //       receiverQueueId: this.userContact.id,
-      //       receiverName: this.userContact.name,
-      //       typeReceiver: this.userContact.type,
-      //       senderQueueId: this.userData.id,
-      //       senderName: this.userData.name,
-      //       typeSender: this.userData.type);
-      // }));
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      final senderId = event.data['Sender-Queue-Id'];
+
+      FileHandler.instance.readMessages().then((value) => {
+        setState(() {
+          List<EstruturaMensagem> lista = [];
+
+          for(int i = 0; i < value.length; i++) {
+            if(value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
+              lista.add(value[i]);
+            }
+          }
+          widget._messageList = lista;
+
+
+          for(int i = 0; i < widget._contactsList.length; i++) {
+            if(widget._contactsList[i].id == senderId) {
+
+              final List<EstruturaMensagem> lista = [];
+
+              for (var j = 0; j < widget._messageList.length; j++) {
+                if(widget._messageList[j].receiverId == widget._contactsList[i].id
+                    || widget._messageList[j].senderId == widget._contactsList[i].id)  {
+                  lista.add(widget._messageList[j]);
+                }
+              }
+
+              widget._contactsList[i].messages = lista;
+
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Mensagem(messages: widget._contactsList[i].messages,
+                    receiverQueueId: widget._contactsList[i].id,
+                    receiverName: widget._contactsList[i].name,
+                    typeReceiver: widget._contactsList[i].type,
+                    senderQueueId: widget.user.id,
+                    senderName: widget.user.name,
+                    typeSender: widget.user.type);
+              }));
+            }
+          }
+        }),
+      });
+
     });
 
     if(widget._getContacts) {
