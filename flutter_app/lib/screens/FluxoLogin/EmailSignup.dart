@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class EmailSignUp extends StatefulWidget {
 class _EmailSignUpState extends State<EmailSignUp> {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
+  final firestoreInstance = FirebaseFirestore.instance;
 
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
@@ -155,16 +157,21 @@ class _EmailSignUpState extends State<EmailSignUp> {
         .createUserWithEmailAndPassword(
         email: emailController.text, password: passwordController.text)
         .then((result) {
-          // TODO: Criar Usuario no Firebase Firestore,
-          // Enviar Matricula, Nome, uid, Username
-          // Usuario precisará de uma ativação da Instituição
-          // Para conseguir pegar informações como lista de contatos, e conseguir enviar / receber mensagens
-
-          isLoading = false;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => Home(uid: result.user!.uid)),
-          );
+          firestoreInstance.collection("users").add({
+            "Name": nameController.text,
+            "Username": usernameController.text,
+            "Type": "",
+            "Turma": "",
+            "id": result.user!.uid,
+            "Matricula": matriculaController.text
+          }).then( (value) {
+            print("Correct save on firestore ${value.id}");
+            isLoading = false;
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Home(uid: result.user!.uid)),
+            );
+          });
 
     }).catchError((error) {
       showDialog(
@@ -177,6 +184,7 @@ class _EmailSignUpState extends State<EmailSignUp> {
                 TextButton(
                   child: Text("OK!"),
                   onPressed: () {
+                    isLoading = false;
                     Navigator.of(context).pop();
                   },
                 )
