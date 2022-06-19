@@ -71,6 +71,7 @@ class ContactsList extends StatefulWidget {
   List<ContactData> _contactsList = [];
   List<EstruturaMensagem> _messageList = [];
   var _getContacts = true;
+  String idContactOpen = "";
 
   ContactsList({Key? key, required this.user, this.uid}) : super(key: key);
 
@@ -87,6 +88,8 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
   @override
   void initState() {
+    widget.idContactOpen = "";
+
     WidgetsBinding.instance.addObserver(this);
     messaging = FirebaseMessaging.instance;
     FirebaseMessaging.onBackgroundMessage(_messageHandler);
@@ -98,20 +101,62 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-      final messageReceived = EstruturaMensagem(
-        message: event.data['message'],
-        date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
-        receiverId: event.data['Receiver-Queue-Id'],
-        receiverName: event.data['Receiver-Name'],
-        receiverType: event.data['Receiver-Type'],
-        senderId: event.data['Sender-Queue-Id'],
-        senderName: event.data['Sender-Name'],
-        senderType: event.data['Sender-Type']
-      );
+      FileHandler.instance.readMessages().then((value) => {
+        setState(() {
+          List<EstruturaMensagem> lista = [];
+          for (int i = 0; i < value.length; i++) {
+            if (value[i].receiverId == widget.user.id ||
+                value[i].senderId == widget.user.id) {
+              lista.add(value[i]);
+            }
+          }
+          widget._messageList = lista;
 
-      FileHandler.instance.writeMessages(messageReceived);
-      setState(() {
-        widget._messageList.add(messageReceived);
+          final messageReceived = EstruturaMensagem(
+              message: event.data['message'],
+              date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
+              receiverId: event.data['Receiver-Queue-Id'],
+              receiverName: event.data['Receiver-Name'],
+              receiverType: event.data['Receiver-Type'],
+              senderId: event.data['Sender-Queue-Id'],
+              senderName: event.data['Sender-Name'],
+              senderType: event.data['Sender-Type']);
+
+          FileHandler.instance.writeMessages(messageReceived);
+          widget._messageList.add(messageReceived);
+          if (messageReceived.senderId == widget.idContactOpen) {
+            Navigator.pop(context);
+            for (int i = 0; i < widget._contactsList.length; i++) {
+              if (widget._contactsList[i].id == messageReceived.senderId) {
+                final List<EstruturaMensagem> lista = [];
+                for (var j = 0; j < widget._messageList.length; j++) {
+                  if (widget._messageList[j].receiverId ==
+                      widget._contactsList[i].id ||
+                      widget._messageList[j].senderId ==
+                          widget._contactsList[i].id) {
+                    lista.add(widget._messageList[j]);
+                  }
+                  widget._contactsList[i].messages = lista;
+                  widget.idContactOpen = widget._contactsList[i].id;
+                }
+
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return Mensagem(messages: widget._contactsList[i].messages,
+                      receiverQueueId: widget._contactsList[i].id,
+                      receiverName: widget._contactsList[i].name,
+                      typeReceiver: widget._contactsList[i].type,
+                      senderQueueId: widget.user.id,
+                      senderName: widget.user.name,
+                      typeSender: widget.user.type);
+                })).then((value) => {
+                  widget.idContactOpen = "",
+                });
+
+                break;
+              }
+            }
+          }
+        }),
       });
     });
 
@@ -143,7 +188,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               }
 
               widget._contactsList[i].messages = lista;
-
+              print("Banaass contact ${widget._contactsList[i].id}");
+              widget.idContactOpen =  widget._contactsList[i].id;
+              
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return Mensagem(messages: widget._contactsList[i].messages,
                     receiverQueueId: widget._contactsList[i].id,
@@ -152,7 +199,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                     senderQueueId: widget.user.id,
                     senderName: widget.user.name,
                     typeSender: widget.user.type);
-              }));
+              })).then((value) => {
+                widget.idContactOpen = "",
+              });
             }
           }
         }),
@@ -186,6 +235,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -210,7 +260,27 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
                   contact.messages = lista;
 
-                  return EmptyItemCell(contact, widget.user);
+                  return Card(
+                    child: ListTile(
+                      leading: Icon(Icons.school),
+                      title: Text("Entre em contato com a Instituição de Ensino \nPara que seja finalizado seu cadastro."),
+                      onTap: () {
+                        widget.idContactOpen = contact.id;
+
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return Mensagem(messages: contact.messages,
+                              receiverQueueId: contact.id,
+                              receiverName: contact.name,
+                              typeReceiver: contact.type,
+                              senderQueueId: widget.user.id,
+                              senderName: widget.user.name,
+                              typeSender: widget.user.type);
+                        })).then((value) => {
+                          widget.idContactOpen = "",
+                        });
+                      },
+                    ),
+                  );
                 } else {
                   final contact = widget._contactsList[indice];
                   final List<EstruturaMensagem> lista = [];
@@ -224,7 +294,26 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
                   contact.messages = lista;
 
-                  return ContactItemCell(contact, widget.user);
+                  return Card(
+                    child: ListTile(
+                      leading: Icon(Icons.message),
+                      title: Text(contact.name),
+                      onTap: () {
+                        widget.idContactOpen = contact.id;
+                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                          return Mensagem(messages: contact.messages,
+                              receiverQueueId: contact.id,
+                              receiverName: contact.name,
+                              typeReceiver:contact.type,
+                              senderQueueId: widget.user.id,
+                              senderName: widget.user.name,
+                              typeSender: widget.user.type);
+                        })).then((value) => {
+                          widget.idContactOpen = "",
+                        });
+                      },
+                    ),
+                  );
                 }
               },
             ),

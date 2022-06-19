@@ -15,6 +15,7 @@ class ContactItemCell extends StatelessWidget {
         leading: Icon(Icons.message),
         title: Text(userContact.name),
         onTap: () {
+
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return Mensagem(messages: this.userContact.messages,
                 receiverQueueId: this.userContact.id,
