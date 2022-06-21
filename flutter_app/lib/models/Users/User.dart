@@ -6,7 +6,7 @@ import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 class UserData {
   String id = '';
   String type = '';
-  String turma = ''; // TODO: Trocar por um vetor ?
+  List<String> turma = [];
   String matricula = '';
   String name = '';
   String username = '';
@@ -24,7 +24,7 @@ class UserData {
 class ContactData extends Equatable {
   String id = '';
   String type = '';
-  String turma = '';
+  List<String> turma = [];
   String name = '';
   String username = '';
   List<EstruturaMensagem> messages = [];

@@ -345,7 +345,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
       .get()
       .then((query) {
         query.docs.forEach((result) {
-
           final data = result.data();
 
           widget.user.id = data[Strings.idFirestore];
@@ -353,7 +352,12 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           widget.user.matricula = data[Strings.matriculaFirestore];
           widget.user.username = data[Strings.usernameFirestore];
           widget.user.type = data[Strings.typeFirestore];
-          widget.user.turma = data[Strings.turmaFirestore];
+
+          List.from(data[Strings.turmaFirestore]).forEach((element) {
+            String turma = element.toString();
+            widget.user.turma.add(turma);
+          });
+
           widget.user.valid = data[Strings.validFirestore];
         });
 
@@ -375,11 +379,16 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             final data = result.data();
             final contact = ContactData();
 
+
             contact.id = data[Strings.idFirestore];
             contact.name = data[Strings.nameFirestore];
             contact.username = data[Strings.usernameFirestore];
             contact.type = data[Strings.typeFirestore];
-            contact.turma = data[Strings.turmaFirestore];
+
+            List.from(data[Strings.turmaFirestore]).forEach((element) {
+              String turma = element.toString();
+              contact.turma.add(turma);
+            });
 
             if(widget._contactsList.contains(contact) == false ) {
               setState(() {
@@ -391,25 +400,31 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         break;
       case "Teacher":
         firestoreInstance.collection("users")
-            .where("Turma", isEqualTo: widget.user.turma)
+            .where("id", isNotEqualTo: widget.user.id)
             .get()
             .then((query) {
               query.docs.forEach((result) {
                 final data = result.data();
                 final contact = ContactData();
 
-                if(data["Type"] != widget.user.type) {
+                for(int i = 0; i < widget.user.turma.length; i++){
+                  if(data[Strings.turmaFirestore].contains(widget.user.turma[i])){
 
-                  contact.id = data[Strings.idFirestore];
-                  contact.name = data[Strings.nameFirestore];
-                  contact.username = data[Strings.usernameFirestore];
-                  contact.type = data[Strings.typeFirestore];
-                  contact.turma = data[Strings.turmaFirestore];
+                    contact.id = data[Strings.idFirestore];
+                    contact.name = data[Strings.nameFirestore];
+                    contact.username = data[Strings.usernameFirestore];
+                    contact.type = data[Strings.typeFirestore];
 
-                  if(widget._contactsList.contains(contact) == false ) {
-                    setState(() {
-                      widget._contactsList.add(contact);
+                    List.from(data[Strings.turmaFirestore]).forEach((element) {
+                      String turma = element.toString();
+                      contact.turma.add(turma);
                     });
+
+                    if(widget._contactsList.contains(contact) == false ) {
+                      setState(() {
+                        widget._contactsList.add(contact);
+                      });
+                    }
                   }
                 }
               });
@@ -418,7 +433,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         break;
       case "Student":
         firestoreInstance.collection("users")
-            .where("Turma", isEqualTo: widget.user.turma)
+            .where("id", isNotEqualTo: widget.user.id)
             .get()
             .then((query) {
 
@@ -427,17 +442,20 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 final data = result.data();
                 final contact = ContactData();
 
-                if(data["Type"] != "Student")  {
-                  if(data["Type"] != "Adm") {
-                    if(data["Type"] != "Parents") {
-
+                if(data[Strings.typeFirestore] != "Student" && data[Strings.typeFirestore] != "Parents")  {
+                  for(int i = 0; i < widget.user.turma.length; i++) {
+                    if(data[Strings.turmaFirestore].contains(widget.user.turma[i])){
                       contact.id = data[Strings.idFirestore];
                       contact.name = data[Strings.nameFirestore];
                       contact.username = data[Strings.usernameFirestore];
                       contact.type = data[Strings.typeFirestore];
-                      contact.turma = data[Strings.turmaFirestore];
 
-                      if(widget._contactsList.contains(contact) == false ) {
+                      List.from(data[Strings.turmaFirestore]).forEach((element) {
+                        String turma = element.toString();
+                        contact.turma.add(turma);
+                      });
+
+                      if(widget._contactsList.contains(contact) == false) {
                         setState(() {
                           widget._contactsList.add(contact);
                         });
@@ -450,21 +468,24 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         break;
       case "Parents":
         firestoreInstance.collection("users")
-            .where("Turma", isEqualTo: widget.user.turma)
+            .where("id", isNotEqualTo: widget.user.id)
             .get()
             .then((query) {
               query.docs.forEach((result) {
                 final data = result.data();
                 final contact = ContactData();
-                if(data["Type"] != widget.user.type) {
-                  if (data["Type"] != "Adm") {
-                    if (data["Type"] != "Students") {
 
+                if(data[Strings.typeFirestore] != widget.user.type && data[Strings.typeFirestore] != "Students") {
+                  for(int i = 0; i < widget.user.turma.length; i++) {
+                    if(data[Strings.turmaFirestore].contains(widget.user.turma[i])) {
                       contact.id = data[Strings.idFirestore];
                       contact.name = data[Strings.nameFirestore];
                       contact.username = data[Strings.usernameFirestore];
                       contact.type = data[Strings.typeFirestore];
-                      contact.turma = data[Strings.turmaFirestore];
+                      List.from(data[Strings.turmaFirestore]).forEach((element) {
+                        String turma = element.toString();
+                        contact.turma.add(turma);
+                      });
 
                       if(widget._contactsList.contains(contact) == false ) {
                         setState(() {
@@ -477,30 +498,42 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               });
             });
         break;
+
       case "School":
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
             .then((query) {
               query.docs.forEach((result) {
+
+
                 final data = result.data();
                 final contact = ContactData();
 
-                contact.id = data[Strings.idFirestore];
-                contact.name = data[Strings.nameFirestore];
-                contact.username = data[Strings.usernameFirestore];
-                contact.type = data[Strings.typeFirestore];
-                contact.turma = data[Strings.turmaFirestore];
+                for(int i = 0; i < widget.user.turma.length; i++) {
+                  if(data[Strings.turmaFirestore].contains(widget.user.turma[i])){
+                    contact.id = data[Strings.idFirestore];
+                    contact.name = data[Strings.nameFirestore];
+                    contact.username = data[Strings.usernameFirestore];
+                    contact.type = data[Strings.typeFirestore];
 
-                if(widget._contactsList.contains(contact) == false ) {
-                  setState(() {
-                    widget._contactsList.add(contact);
-                  });
+                    List.from(data[Strings.turmaFirestore]).forEach((element) {
+                      String turma = element.toString();
+                      contact.turma.add(turma);
+                    });
+
+                    if(widget._contactsList.contains(contact) == false ) {
+                      setState(() {
+                        widget._contactsList.add(contact);
+                      });
+                    }
+                  }
                 }
               });
             });
         break;
       default:
+        // TODO: This type school will change to Resgistro academico
         firestoreInstance.collection("users")
             .where("Type", isEqualTo: "School")
             .get().then((query) {
@@ -512,7 +545,11 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 contact.name = data[Strings.nameFirestore];
                 contact.username = data[Strings.usernameFirestore];
                 contact.type = data[Strings.typeFirestore];
-                contact.turma = data[Strings.turmaFirestore];
+                
+                List.from(data[Strings.turmaFirestore]).forEach((element) {
+                  String turma = element.toString();
+                  contact.turma.add(turma);
+                });
 
                 if(widget._contactsList.contains(contact) == false ) {
                   setState(() {
