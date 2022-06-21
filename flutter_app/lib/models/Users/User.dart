@@ -11,6 +11,7 @@ class UserData {
   String name = '';
   String username = '';
   String valid = '';
+  List<Grupos> grupos = [];
 
   static final UserData shared = UserData._internal();
 
@@ -19,6 +20,16 @@ class UserData {
   }
 
   UserData._internal();
+}
+
+class Grupos extends Equatable {
+  String nome = '';
+  String queue = '';
+  List<String> tipoGrupo = [];
+  List<String> turma = [];
+
+  @override
+  List<Object?> get props => [nome, queue, tipoGrupo, turma];
 }
 
 class ContactData extends Equatable {

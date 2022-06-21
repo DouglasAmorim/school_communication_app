@@ -101,15 +101,24 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+
       FileHandler.instance.readMessages().then((value) => {
         setState(() {
           List<EstruturaMensagem> lista = [];
           for (int i = 0; i < value.length; i++) {
-            if (value[i].receiverId == widget.user.id ||
-                value[i].senderId == widget.user.id) {
+            if (value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
               lista.add(value[i]);
+            } else {
+              if(value[i].receiverType == "Group") {
+                for(int j = 0; j < widget.user.grupos.length; j++) {
+                  if(value[i].receiverId == widget.user.grupos[j].queue) {
+                    lista.add(value[i]);
+                  }
+                }
+              }
             }
           }
+
           widget._messageList = lista;
 
           final messageReceived = EstruturaMensagem(
@@ -122,9 +131,12 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               senderName: event.data['Sender-Name'],
               senderType: event.data['Sender-Type']);
 
-          FileHandler.instance.writeMessages(messageReceived);
-          widget._messageList.add(messageReceived);
-          if (messageReceived.senderId == widget.idContactOpen) {
+          if(messageReceived.senderId != widget.user.id){
+            FileHandler.instance.writeMessages(messageReceived);
+            widget._messageList.add(messageReceived);
+          }
+          
+          if (messageReceived.senderId == widget.idContactOpen && messageReceived.receiverType != "Group") {
             Navigator.pop(context);
             for (int i = 0; i < widget._contactsList.length; i++) {
               if (widget._contactsList[i].id == messageReceived.senderId) {
@@ -170,14 +182,21 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           for(int i = 0; i < value.length; i++) {
             if(value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
               lista.add(value[i]);
+            } else {
+              if (value[i].receiverType == "Group") {
+                for(int j = 0; j < widget.user.grupos.length; j++) {
+                  if(value[i].receiverId == widget.user.grupos[j].queue) {
+                    lista.add(value[i]);
+                  }
+                }
+              }
             }
           }
+
           widget._messageList = lista;
 
-
           for(int i = 0; i < widget._contactsList.length; i++) {
-            if(widget._contactsList[i].id == senderId) {
-
+            if(widget._contactsList[i].id == senderId && event.data["Receiver-Type"] != "Group") {
               final List<EstruturaMensagem> lista = [];
 
               for (var j = 0; j < widget._messageList.length; j++) {
@@ -188,7 +207,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               }
 
               widget._contactsList[i].messages = lista;
-              print("Banaass contact ${widget._contactsList[i].id}");
+              print("Banana contact ${widget._contactsList[i].id}");
               widget.idContactOpen =  widget._contactsList[i].id;
               
               Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -252,9 +271,15 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                   final List<EstruturaMensagem> lista = [];
 
                   for (var i = 0; i < widget._messageList.length; i++) {
-                    if(widget._messageList[i].receiverId == contact.id
-                        || widget._messageList[i].senderId == contact.id)  {
-                      lista.add(widget._messageList[i]);
+                    if(widget._messageList[i].receiverType == "Group") {
+                      if(widget._messageList[i].receiverId == contact.id) {
+                        lista.add(widget._messageList[i]);
+                      }
+                    } else {
+                      if(widget._messageList[i].receiverId == contact.id
+                          || widget._messageList[i].senderId == contact.id)  {
+                        lista.add(widget._messageList[i]);
+                      }
                     }
                   }
 
@@ -285,10 +310,17 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                   final contact = widget._contactsList[indice];
                   final List<EstruturaMensagem> lista = [];
 
+
                   for (var i = 0; i < widget._messageList.length; i++) {
-                    if(widget._messageList[i].receiverId == contact.id
-                        || widget._messageList[i].senderId == contact.id)  {
-                      lista.add(widget._messageList[i]);
+                    if(widget._messageList[i].receiverType == "Group") {
+                      if(widget._messageList[i].receiverId == contact.id) {
+                        lista.add(widget._messageList[i]);
+                      }
+                    } else {
+                      if(widget._messageList[i].receiverId == contact.id
+                          || widget._messageList[i].senderId == contact.id)  {
+                        lista.add(widget._messageList[i]);
+                      }
                     }
                   }
 
@@ -331,6 +363,14 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         for(int i = 0; i < value.length; i++) {
           if(value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
             lista.add(value[i]);
+          } else {
+            if(value[i].receiverType == "Group") {
+              for(int j = 0; j < widget.user.grupos.length; j++) {
+                if(value[i].receiverId == widget.user.grupos[j].queue) {
+                  lista.add(value[i]);
+                }
+              }
+            }
           }
         }
         widget._messageList = lista;
@@ -365,6 +405,180 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
   }
 
+  Future<void> _listenTopicGroup() async {
+    for(int i = 0; i < widget.user.grupos.length; i++) {
+      print("BANANA escutando ao grupo ${widget.user.grupos[i].queue}");
+      await FirebaseMessaging.instance.subscribeToTopic(widget.user.grupos[i].queue);
+    }
+  }
+
+  void _getGroups() {
+    print("Banana starting get groups");
+    switch(widget.user.type){
+      case "Student":
+        print("BANANA user is student");
+
+        firestoreInstance.collection("grupos")
+            .get()
+            .then((query) {
+          print("Banana query ${query}");
+          query.docs.forEach((result) {
+            print("Banana result ${result}");
+            final data = result.data();
+            print("Banana ${data}");
+
+            for(int i = 0; i < widget.user.turma.length; i++) {
+              if(data["Turma"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type)) {
+                print("Banana group student contain turma");
+
+                Grupos grupo = Grupos();
+                grupo.nome = data["Nome"];
+                grupo.queue = data["Queue"];
+
+                List.from(data["Turma"]).forEach((element) {
+                  String turma = element.toString();
+                  grupo.turma.add(turma);
+                });
+
+                List.from(data["TipoGrupo"]).forEach((element) {
+                  String tipoGrupo = element.toString();
+                  grupo.tipoGrupo.add(tipoGrupo);
+                });
+
+                if(widget.user.grupos.contains(grupo) == false ) {
+                  setState(() {
+                    widget.user.grupos.add(grupo);
+                  });
+                }
+
+                ContactData contact = ContactData();
+                contact.name = grupo.nome;
+                contact.turma = grupo.turma;
+                contact.id = grupo.queue;
+                contact.type = "Group";
+                contact.username = grupo.nome;
+
+
+                if(widget._contactsList.contains(contact) == false ) {
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
+              }
+            }
+          });
+          _listenTopicGroup();
+          _getUserMessages();
+        });
+        break;
+      case "Parents":
+        print("BANANA user is parents");
+        firestoreInstance.collection("grupos")
+            .get()
+            .then((query) {
+
+          query.docs.forEach((result) {
+            final data = result.data();
+
+            for(int i = 0; i < widget.user.turma.length; i++){
+              if(data["TipoGrupos"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type) ) {
+                print("Banana group student contain turma");
+
+                Grupos grupo = Grupos();
+                grupo.nome = data["Nome"];
+                grupo.queue = data["Queue"];
+
+                List.from(data["Turma"]).forEach((element) {
+                  String turma = element.toString();
+                  grupo.turma.add(turma);
+                });
+
+                List.from(data["TipoGrupo"]).forEach((element) {
+                  String tipoGrupo = element.toString();
+                  grupo.tipoGrupo.add(tipoGrupo);
+                });
+
+                if(widget.user.grupos.contains(grupo) == false ) {
+                  setState(() {
+                    widget.user.grupos.add(grupo);
+                  });
+                }
+
+                ContactData contact = ContactData();
+                contact.name = grupo.nome;
+                contact.turma = grupo.turma;
+                contact.id = grupo.queue;
+                contact.type = "Group";
+                contact.username = grupo.nome;
+
+
+                if(widget._contactsList.contains(contact) == false ) {
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
+              }
+            }
+          });
+          _listenTopicGroup();
+          _getUserMessages();
+        });
+        break;
+      default:
+        print("BANANA user is default");
+        firestoreInstance.collection("grupos")
+            .get()
+            .then((query) {
+
+          query.docs.forEach((result) {
+            final data = result.data();
+
+            for(int i = 0; i < widget.user.turma.length; i++){
+              if(data["TipoGrupos"].contains(widget.user.turma[i])) {
+                print("Banana group student contain turma");
+
+                Grupos grupo = Grupos();
+                grupo.nome = data["Nome"];
+                grupo.queue = data["Queue"];
+
+                List.from(data["Turma"]).forEach((element) {
+                  String turma = element.toString();
+                  grupo.turma.add(turma);
+                });
+
+                List.from(data["TipoGrupo"]).forEach((element) {
+                  String tipoGrupo = element.toString();
+                  grupo.tipoGrupo.add(tipoGrupo);
+                });
+
+                if(widget.user.grupos.contains(grupo) == false ) {
+                  setState(() {
+                    widget.user.grupos.add(grupo);
+                  });
+                }
+
+                ContactData contact = ContactData();
+                contact.name = grupo.nome;
+                contact.turma = grupo.turma;
+                contact.id = grupo.queue;
+                contact.type = "Group";
+                contact.username = grupo.nome;
+
+
+                if(widget._contactsList.contains(contact) == false ) {
+                  setState(() {
+                    widget._contactsList.add(contact);
+                  });
+                }
+
+              }
+            }
+          });
+          _listenTopicGroup();
+          _getUserMessages();
+        });
+    }
+  }
 
   void _getUserContacts() {
     widget._contactsList = [];
@@ -442,8 +656,11 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 final data = result.data();
                 final contact = ContactData();
 
+                print("BANANA adicionando contato ${data}");
+
                 if(data[Strings.typeFirestore] != "Student" && data[Strings.typeFirestore] != "Parents")  {
                   for(int i = 0; i < widget.user.turma.length; i++) {
+
                     if(data[Strings.turmaFirestore].contains(widget.user.turma[i])){
                       contact.id = data[Strings.idFirestore];
                       contact.name = data[Strings.nameFirestore];
@@ -545,7 +762,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 contact.name = data[Strings.nameFirestore];
                 contact.username = data[Strings.usernameFirestore];
                 contact.type = data[Strings.typeFirestore];
-                
+
                 List.from(data[Strings.turmaFirestore]).forEach((element) {
                   String turma = element.toString();
                   contact.turma.add(turma);
@@ -560,7 +777,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           });
           break;
     }
-    _getUserMessages();
+    _getGroups();
   }
 }
 

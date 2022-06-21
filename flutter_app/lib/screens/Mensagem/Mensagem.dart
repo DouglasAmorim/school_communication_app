@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
@@ -90,11 +91,13 @@ class MensagemState extends State<Mensagem> {
           receiverType: widget.typeReceiver,
       );
 
-      ApiImpl().sendNotification(msg).then((value) => {
-        FileHandler.instance.writeMessages(msg),
-        _controllerMessage.clear(),
-        setState(() {
-          widget.messages.add(msg);
+      print("BANANA escrevendo mensagem ${msg}");
+      FileHandler.instance.writeMessages(msg).then((value) => {
+        ApiImpl().sendNotification(msg).then((value) => {
+          _controllerMessage.clear(),
+          setState(() {
+            widget.messages.add(msg);
+          }),
         }),
       });
     }
