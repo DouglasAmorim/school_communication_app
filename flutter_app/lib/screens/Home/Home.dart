@@ -9,26 +9,44 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
 import 'package:intl/intl.dart';
+import 'package:tcc_ifsc/screens/Noticia/Noticia.dart';
 
 import '../../Helpers/Strings.dart';
 import '../../models/EstruturaMensagem.dart';
+import '../../models/EstruturaNoticia.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
 import '../Mensagem/Mensagem.dart';
 
 Future<void> _messageHandler(RemoteMessage event) async {
-  final messageReceived = EstruturaMensagem(
-      message: event.data['message'],
-      date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()) ,
-      receiverId: event.data['Receiver-Queue-Id'],
-      receiverName: event.data['Receiver-Name'],
-      receiverType: event.data['Receiver-Type'],
-      senderId: event.data['Sender-Queue-Id'],
-      senderName: event.data['Sender-Name'],
-      senderType: event.data['Sender-Type']
-  );
+  if(event.data["news"] == "true") {
+    final noticiaRecebida = EstruturaNoticia(
+        titulo: event.data['title'],
+        message: event.data['message'],
+        date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
+            DateTime.now()),
+        receiverId: event.data['Receiver-Queue-Id'],
+        senderId: event.data['Sender-Queue-Id'],
+        senderName: event.data['Sender-Name'],
+        senderType: event.data['Sender-Type']);
 
-  FileHandler.instance.writeMessages(messageReceived);
+    FileHandler.instance.writeNoticia(noticiaRecebida);
+
+  } else {
+
+    final messageReceived = EstruturaMensagem(
+        message: event.data['message'],
+        date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()) ,
+        receiverId: event.data['Receiver-Queue-Id'],
+        receiverName: event.data['Receiver-Name'],
+        receiverType: event.data['Receiver-Type'],
+        senderId: event.data['Sender-Queue-Id'],
+        senderName: event.data['Sender-Name'],
+        senderType: event.data['Sender-Type']
+    );
+
+    FileHandler.instance.writeMessages(messageReceived);
+  }
 }
 
 class Home extends StatelessWidget {
@@ -70,6 +88,8 @@ class ContactsList extends StatefulWidget {
   final String? uid;
   List<ContactData> _contactsList = [];
   List<EstruturaMensagem> _messageList = [];
+  List<EstruturaNoticia> _noticiaList = [];
+
   var _getContacts = true;
   String idContactOpen = "";
 
@@ -101,17 +121,25 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+      print("RECEBIDO ${event.data}");
+      if (event.data["news"] == "true") {
+        print("RECEBIDO NOTICIA");
+        _tratarNoticiasRecebidas(event);
+        return;
+      }
 
-      FileHandler.instance.readMessages().then((value) => {
+      FileHandler.instance.readMessages().then((value) =>
+      {
         setState(() {
           List<EstruturaMensagem> lista = [];
           for (int i = 0; i < value.length; i++) {
-            if (value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
+            if (value[i].receiverId == widget.user.id ||
+                value[i].senderId == widget.user.id) {
               lista.add(value[i]);
             } else {
-              if(value[i].receiverType == "Group") {
-                for(int j = 0; j < widget.user.grupos.length; j++) {
-                  if(value[i].receiverId == widget.user.grupos[j].queue) {
+              if (value[i].receiverType == "Group") {
+                for (int j = 0; j < widget.user.grupos.length; j++) {
+                  if (value[i].receiverId == widget.user.grupos[j].queue) {
                     lista.add(value[i]);
                   }
                 }
@@ -123,7 +151,8 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
           final messageReceived = EstruturaMensagem(
               message: event.data['message'],
-              date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()),
+              date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
+                  DateTime.now()),
               receiverId: event.data['Receiver-Queue-Id'],
               receiverName: event.data['Receiver-Name'],
               receiverType: event.data['Receiver-Type'],
@@ -131,12 +160,13 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               senderName: event.data['Sender-Name'],
               senderType: event.data['Sender-Type']);
 
-          if(messageReceived.senderId != widget.user.id){
+          if (messageReceived.senderId != widget.user.id) {
             FileHandler.instance.writeMessages(messageReceived);
             widget._messageList.add(messageReceived);
           }
-          
-          if (messageReceived.senderId == widget.idContactOpen && messageReceived.receiverType != "Group") {
+
+          if (messageReceived.senderId == widget.idContactOpen &&
+              messageReceived.receiverType != "Group") {
             Navigator.pop(context);
             for (int i = 0; i < widget._contactsList.length; i++) {
               if (widget._contactsList[i].id == messageReceived.senderId) {
@@ -160,7 +190,8 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                       senderQueueId: widget.user.id,
                       senderName: widget.user.name,
                       typeSender: widget.user.type);
-                })).then((value) => {
+                })).then((value) =>
+                {
                   widget.idContactOpen = "",
                 });
 
@@ -175,17 +206,24 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
       final senderId = event.data['Sender-Queue-Id'];
 
-      FileHandler.instance.readMessages().then((value) => {
+      if(event.data["news"] == "true") {
+        // TODO: Redirecionar tela noticia
+        return;
+      }
+
+      FileHandler.instance.readMessages().then((value) =>
+      {
         setState(() {
           List<EstruturaMensagem> lista = [];
 
-          for(int i = 0; i < value.length; i++) {
-            if(value[i].receiverId == widget.user.id || value[i].senderId == widget.user.id) {
+          for (int i = 0; i < value.length; i++) {
+            if (value[i].receiverId == widget.user.id ||
+                value[i].senderId == widget.user.id) {
               lista.add(value[i]);
             } else {
               if (value[i].receiverType == "Group") {
-                for(int j = 0; j < widget.user.grupos.length; j++) {
-                  if(value[i].receiverId == widget.user.grupos[j].queue) {
+                for (int j = 0; j < widget.user.grupos.length; j++) {
+                  if (value[i].receiverId == widget.user.grupos[j].queue) {
                     lista.add(value[i]);
                   }
                 }
@@ -195,21 +233,24 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
           widget._messageList = lista;
 
-          for(int i = 0; i < widget._contactsList.length; i++) {
-            if(widget._contactsList[i].id == senderId && event.data["Receiver-Type"] != "Group") {
+          for (int i = 0; i < widget._contactsList.length; i++) {
+            if (widget._contactsList[i].id == senderId &&
+                event.data["Receiver-Type"] != "Group") {
               final List<EstruturaMensagem> lista = [];
 
               for (var j = 0; j < widget._messageList.length; j++) {
-                if(widget._messageList[j].receiverId == widget._contactsList[i].id
-                    || widget._messageList[j].senderId == widget._contactsList[i].id)  {
+                if (widget._messageList[j].receiverId ==
+                    widget._contactsList[i].id
+                    || widget._messageList[j].senderId ==
+                        widget._contactsList[i].id) {
                   lista.add(widget._messageList[j]);
                 }
               }
 
               widget._contactsList[i].messages = lista;
               print("Banana contact ${widget._contactsList[i].id}");
-              widget.idContactOpen =  widget._contactsList[i].id;
-              
+              widget.idContactOpen = widget._contactsList[i].id;
+
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return Mensagem(messages: widget._contactsList[i].messages,
                     receiverQueueId: widget._contactsList[i].id,
@@ -218,17 +259,17 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                     senderQueueId: widget.user.id,
                     senderName: widget.user.name,
                     typeSender: widget.user.type);
-              })).then((value) => {
+              })).then((value) =>
+              {
                 widget.idContactOpen = "",
               });
             }
           }
         }),
       });
-
     });
 
-    if(widget._getContacts) {
+    if (widget._getContacts) {
       _getUserInformation();
     }
   }
@@ -355,6 +396,25 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     );
   }
 
+  void _tratarNoticiasRecebidas(RemoteMessage event) {
+    print("BANANA tratar noticia recebida");
+
+    final noticiaRecebida = EstruturaNoticia(
+        titulo: event.data['title'],
+        message: event.data['message'],
+        date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
+            DateTime.now()),
+        receiverId: event.data['Receiver-Queue-Id'],
+        senderId: event.data['Sender-Queue-Id'],
+        senderName: event.data['Sender-Name'],
+        senderType: event.data['Sender-Type']);
+
+    setState(() {
+      FileHandler.instance.writeNoticia(noticiaRecebida);
+      widget._noticiaList.add(noticiaRecebida);
+    });
+  }
+
   void _getUserMessages() {
     FileHandler.instance.readMessages().then((value) => {
       setState(() {
@@ -374,6 +434,17 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           }
         }
         widget._messageList = lista;
+      }),
+    });
+
+    FileHandler.instance.readNoticia().then((value) => {
+      setState( () {
+        List<EstruturaNoticia> lista = [];
+        for(int i = 0; i < value.length; i++) {
+          lista.add(value[i]);
+        }
+
+        widget._noticiaList = lista;
       }),
     });
   }
@@ -405,11 +476,52 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
   }
 
+  Future<void> _listenNewsTopic() async {
+    switch(widget.user.type) {
+      case "Student":
+        print("BANANA escutando ao grupo ${widget.user.turma[0]}");
+        await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurmaAlunos${widget.user.turma[0]}");
+
+        print("topicTurma${widget.user.turma[0]}");
+        await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[0]}");
+
+        print("topicTurma${widget.user.turma[0]}");
+        await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
+
+        break;
+      case "Parensts":
+
+        for(int i = 0; i < widget.user.turma.length; i++) {
+          print("topicTurma${widget.user.turma[i]}");
+          await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
+
+          print("topicNoticiasPaisTurma${widget.user.turma[i]}");
+          await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasPaisTurma${widget.user.turma[i]}");
+        }
+
+        print("topicTurma${widget.user.turma[0]}");
+        await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
+
+        break;
+      default:
+        for(int i = 0; i < widget.user.turma.length; i++) {
+          print("topicTurma${widget.user.turma[i]}");
+          await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
+        }
+
+        print("topicTurma${widget.user.turma[0]}");
+        await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
+        break;
+    }
+  }
+
   Future<void> _listenTopicGroup() async {
     for(int i = 0; i < widget.user.grupos.length; i++) {
       print("BANANA escutando ao grupo ${widget.user.grupos[i].queue}");
       await FirebaseMessaging.instance.subscribeToTopic(widget.user.grupos[i].queue);
     }
+
+    _listenNewsTopic();
   }
 
   void _getGroups() {
@@ -814,7 +926,6 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
             ),
             title: Text('Home'),
             onTap: () {
-              print(widget.uid);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => Home(uid: widget.uid)),
@@ -824,12 +935,26 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
 
           ListTile(
             leading: new IconButton(
-              icon: new Icon(Icons.settings, color: Colors.black),
+              icon: new Icon(Icons.newspaper , color: Colors.black),
               onPressed: () => null,
             ),
-            title: Text('Settings'),
+            title: Text('Noticias'),
             onTap: () {
-              print(widget.uid);
+              FileHandler.instance.readNoticia().then((value) => {
+                setState( () {
+                  print("NOTICIA ${value} ${value.length}");
+
+                  if(!value.isEmpty){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Noticia(noticias: value)),
+                    );
+                  } else {
+                    //TODO: Informar ao usuario que está sem noticias
+                  }
+
+                }),
+              });
             },
           ),
         ],
