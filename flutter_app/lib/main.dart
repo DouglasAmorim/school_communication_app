@@ -20,6 +20,7 @@ import 'package:splashscreen/splashscreen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   // FirebaseMessaging.onBackgroundMessage(_messageHandler);
   runApp(ComunicationApp());
 }

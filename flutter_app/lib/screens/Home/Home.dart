@@ -10,6 +10,7 @@ import 'package:tcc_ifsc/models/Cells/ContactItemCell.dart';
 import 'package:tcc_ifsc/models/Storage/FileHandler.dart';
 import 'package:intl/intl.dart';
 import 'package:tcc_ifsc/screens/Noticia/Noticia.dart';
+import 'package:tcc_ifsc/screens/Noticia/PostarNoticia.dart';
 
 import '../../Helpers/Strings.dart';
 import '../../models/EstruturaMensagem.dart';
@@ -112,6 +113,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
     WidgetsBinding.instance.addObserver(this);
     messaging = FirebaseMessaging.instance;
+
+    messaging.deleteToken();
+
     FirebaseMessaging.onBackgroundMessage(_messageHandler);
 
     messaging.subscribeToTopic(widget.user.id);
@@ -121,9 +125,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-      print("RECEBIDO ${event.data}");
       if (event.data["news"] == "true") {
-        print("RECEBIDO NOTICIA");
         _tratarNoticiasRecebidas(event);
         return;
       }
@@ -248,7 +250,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               }
 
               widget._contactsList[i].messages = lista;
-              print("Banana contact ${widget._contactsList[i].id}");
               widget.idContactOpen = widget._contactsList[i].id;
 
               Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -397,7 +398,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
   }
 
   void _tratarNoticiasRecebidas(RemoteMessage event) {
-    print("BANANA tratar noticia recebida");
 
     final noticiaRecebida = EstruturaNoticia(
         titulo: event.data['title'],
@@ -477,72 +477,59 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
   }
 
   Future<void> _listenNewsTopic() async {
+    print("Escutando TOPIC news");
     switch(widget.user.type) {
       case "Student":
-        print("BANANA escutando ao grupo ${widget.user.turma[0]}");
+        print("Escutando Queue Student");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurmaAlunos${widget.user.turma[0]}");
-
-        print("topicTurma${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[0]}");
-
-        print("topicTurma${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
 
         break;
       case "Parensts":
-
+        print("Escutando Queue Parents");
         for(int i = 0; i < widget.user.turma.length; i++) {
-          print("topicTurma${widget.user.turma[i]}");
           await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
-
-          print("topicNoticiasPaisTurma${widget.user.turma[i]}");
-          await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasPaisTurma${widget.user.turma[i]}");
+          await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurmaPais${widget.user.turma[i]}");
         }
 
-        print("topicTurma${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
 
         break;
       default:
+        print("Escutando Queue Default");
         for(int i = 0; i < widget.user.turma.length; i++) {
-          print("topicTurma${widget.user.turma[i]}");
           await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
         }
 
-        print("topicTurma${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
         break;
     }
   }
 
   Future<void> _listenTopicGroup() async {
+    print("Escutar grupos");
     for(int i = 0; i < widget.user.grupos.length; i++) {
-      print("BANANA escutando ao grupo ${widget.user.grupos[i].queue}");
       await FirebaseMessaging.instance.subscribeToTopic(widget.user.grupos[i].queue);
     }
 
+    print("chamar topin news");
     _listenNewsTopic();
   }
 
   void _getGroups() {
-    print("Banana starting get groups");
+    print("pegar grupos");
     switch(widget.user.type){
       case "Student":
-        print("BANANA user is student");
-
+        print("student");
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
-          print("Banana query ${query}");
           query.docs.forEach((result) {
-            print("Banana result ${result}");
             final data = result.data();
-            print("Banana ${data}");
 
             for(int i = 0; i < widget.user.turma.length; i++) {
               if(data["Turma"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type)) {
-                print("Banana group student contain turma");
-
                 Grupos grupo = Grupos();
                 grupo.nome = data["Nome"];
                 grupo.queue = data["Queue"];
@@ -584,7 +571,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         });
         break;
       case "Parents":
-        print("BANANA user is parents");
+        print("parents");
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
@@ -593,8 +580,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             final data = result.data();
 
             for(int i = 0; i < widget.user.turma.length; i++){
-              if(data["TipoGrupos"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type) ) {
-                print("Banana group student contain turma");
+              if(data["TipoGrupo"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type) ) {
 
                 Grupos grupo = Grupos();
                 grupo.nome = data["Nome"];
@@ -637,7 +623,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         });
         break;
       default:
-        print("BANANA user is default");
+        print("default");
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
@@ -646,8 +632,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             final data = result.data();
 
             for(int i = 0; i < widget.user.turma.length; i++){
-              if(data["TipoGrupos"].contains(widget.user.turma[i])) {
-                print("Banana group student contain turma");
+              if(data["TipoGrupo"].contains(widget.user.turma[i])) {
 
                 Grupos grupo = Grupos();
                 grupo.nome = data["Nome"];
@@ -767,8 +752,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
                 final data = result.data();
                 final contact = ContactData();
-
-                print("BANANA adicionando contato ${data}");
 
                 if(data[Strings.typeFirestore] != "Student" && data[Strings.typeFirestore] != "Parents")  {
                   for(int i = 0; i < widget.user.turma.length; i++) {
@@ -942,7 +925,6 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
             onTap: () {
               FileHandler.instance.readNoticia().then((value) => {
                 setState( () {
-                  print("NOTICIA ${value} ${value.length}");
 
                   if(!value.isEmpty){
                     Navigator.push(
@@ -952,9 +934,26 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
                   } else {
                     //TODO: Informar ao usuario que está sem noticias
                   }
-
                 }),
               });
+            },
+          ),
+
+          ListTile(
+            leading: new IconButton(
+              icon: new Icon(Icons.newspaper , color: Colors.black),
+              onPressed: () => null,
+            ),
+            title: Text('Postar Noticias'),
+            onTap: () {
+              if(widget.user.type == "Teacher" || widget.user.type == "School") {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PostarNoticia(user: widget.user)),
+                );
+              } else {
+                //TODO: Informar ao usuario que está sem noticias
+              }
             },
           ),
         ],
