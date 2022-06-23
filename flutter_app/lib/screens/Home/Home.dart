@@ -15,6 +15,7 @@ import 'package:tcc_ifsc/screens/Noticia/PostarNoticia.dart';
 import '../../Helpers/Strings.dart';
 import '../../models/EstruturaMensagem.dart';
 import '../../models/EstruturaNoticia.dart';
+import '../../models/ParseTipoUsuario.dart';
 import '../../models/Users/User.dart';
 import '../FluxoLogin/Signup.dart';
 import '../Mensagem/Mensagem.dart';
@@ -370,8 +371,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
                   return Card(
                     child: ListTile(
-                      leading: Icon(Icons.message),
-                      title: Text(contact.name),
+                      leading: Icon(contact.type == "Group" ? Icons.group : Icons.message),
+                      title: Text(contact.type == "Group" ? "Grupo - ${contact.name}" : "${ParseTipoUsuario().parseUser(contact.type)} - ${contact.name}" , style: TextStyle(fontSize: 14, color: Colors.black38,)),
+                      subtitle: Text(contact.messages.isEmpty ? "" : contact.messages.last.message, style: TextStyle(fontSize: 12, color: Colors.black),),
                       onTap: () {
                         widget.idContactOpen = contact.id;
                         Navigator.push(context, MaterialPageRoute(builder: (context) {

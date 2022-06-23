@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/Enums/typeEnum.dart';
@@ -48,6 +50,7 @@ class MensagemState extends State<Mensagem> {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               itemBuilder: (context, indice) {
+
                 final message = widget.messages[indice];
                 Color color = Colors.white;
 
@@ -55,7 +58,7 @@ class MensagemState extends State<Mensagem> {
                   color = Colors.greenAccent;
                 }
 
-                return MensagensItemList(message.message, color);
+                return MensagensItemList(message.message, color, message.senderId == widget.senderQueueId, message.senderName);
               },
             ),
           ],
@@ -91,7 +94,6 @@ class MensagemState extends State<Mensagem> {
           receiverType: widget.typeReceiver,
       );
 
-      print("BANANA escrevendo mensagem ${msg}");
       FileHandler.instance.writeMessages(msg).then((value) => {
         ApiImpl().sendNotification(msg).then((value) => {
           _controllerMessage.clear(),
@@ -107,15 +109,18 @@ class MensagemState extends State<Mensagem> {
 class MensagensItemList extends StatelessWidget {
   final String _message;
   final Color _color;
+  final bool _isSender;
+  final String _userName;
 
-  MensagensItemList(this._message, this._color);
+  MensagensItemList(this._message, this._color, this._isSender, this._userName);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         leading: Icon(Icons.message),
-        title: Text(_message),
+        title: Text(_isSender ? "" : this._userName, textAlign: TextAlign.left, style: TextStyle(fontSize: 14, color: Colors.black38),),
+        subtitle: Text(_message, textAlign: this._isSender ? TextAlign.right : TextAlign.left, style: TextStyle(fontSize: 18, color: Colors.black),),
       ),
       color: _color,
     );
