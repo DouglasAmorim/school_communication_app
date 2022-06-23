@@ -9,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:tcc_ifsc/Auth/secrets.dart';
 import 'package:tcc_ifsc/models/EstruturaNoticia.dart';
 
+import '../../Helpers/Strings.dart';
+
 class ApiImpl {
 
   Future<String> sendNoticia(EstruturaNoticia noticia) async {
@@ -24,11 +26,11 @@ class ApiImpl {
       "priority":"high",
 
       "data": {
-        "Sender-Name": "${noticia.senderName}",
-        "Sender-Queue-Id": "${noticia.senderId}",
-        "Sender-Type": "${noticia.senderType}",
-        "Receiver-Queue-Id": "${noticia.receiverId}",
-        "news": "true",
+        Strings.fcmSenderName: "${noticia.senderName}",
+        Strings.fcmSenderQueueId: "${noticia.senderId}",
+        Strings.fcmSenderType: "${noticia.senderType}",
+        Strings.fcmReceiverQueueId: "${noticia.receiverId}",
+        Strings.fcmNews: "true",
         "title": "${noticia.titulo}",
         "message": "${noticia.message}",
         "sendDate": "${noticia.date}",
@@ -67,12 +69,12 @@ class ApiImpl {
       "priority":"high",
 
       "data": {
-        "Sender-Name": "${message.senderName}",
-        "Sender-Queue-Id": "${message.senderId}",
-        "Sender-Type": "${message.senderType}",
-        "Receiver-Queue-Id": "${message.receiverId}",
-        "Receiver-Name": "${message.receiverName}",
-        "Receiver-Type": "${message.receiverType}",
+        Strings.fcmSenderName: "${message.senderName}",
+        Strings.fcmSenderQueueId: "${message.senderId}",
+        Strings.fcmSenderType: "${message.senderType}",
+        Strings.fcmReceiverQueueId: "${message.receiverId}",
+        Strings.fcmReceiverName: "${message.receiverName}",
+        Strings.fcmReceiverType: "${message.receiverType}",
         "message": "${message.message}",
         "sendDate": "${message.date}",
       },

@@ -21,16 +21,16 @@ import '../FluxoLogin/Signup.dart';
 import '../Mensagem/Mensagem.dart';
 
 Future<void> _messageHandler(RemoteMessage event) async {
-  if(event.data["news"] == "true") {
+  if(event.data[Strings.fcmNews] == "true") {
     final noticiaRecebida = EstruturaNoticia(
         titulo: event.data['title'],
         message: event.data['message'],
         date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
             DateTime.now()),
-        receiverId: event.data['Receiver-Queue-Id'],
-        senderId: event.data['Sender-Queue-Id'],
-        senderName: event.data['Sender-Name'],
-        senderType: event.data['Sender-Type']);
+        receiverId: event.data[Strings.fcmReceiverQueueId],
+        senderId: event.data[Strings.fcmSenderQueueId],
+        senderName: event.data[Strings.fcmSenderName],
+        senderType: event.data[Strings.fcmSenderType]);
 
     FileHandler.instance.writeNoticia(noticiaRecebida);
 
@@ -39,12 +39,12 @@ Future<void> _messageHandler(RemoteMessage event) async {
     final messageReceived = EstruturaMensagem(
         message: event.data['message'],
         date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(DateTime.now()) ,
-        receiverId: event.data['Receiver-Queue-Id'],
-        receiverName: event.data['Receiver-Name'],
-        receiverType: event.data['Receiver-Type'],
-        senderId: event.data['Sender-Queue-Id'],
-        senderName: event.data['Sender-Name'],
-        senderType: event.data['Sender-Type']
+        receiverId: event.data[Strings.fcmReceiverQueueId],
+        receiverName: event.data[Strings.fcmReceiverName],
+        receiverType: event.data[Strings.fcmReceiverType],
+        senderId: event.data[Strings.fcmSenderQueueId],
+        senderName: event.data[Strings.fcmSenderName],
+        senderType: event.data[Strings.fcmSenderType]
     );
 
     FileHandler.instance.writeMessages(messageReceived);
@@ -126,7 +126,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
-      if (event.data["news"] == "true") {
+      if (event.data[Strings.fcmNews] == "true") {
         _tratarNoticiasRecebidas(event);
         return;
       }
@@ -156,12 +156,12 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               message: event.data['message'],
               date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
                   DateTime.now()),
-              receiverId: event.data['Receiver-Queue-Id'],
-              receiverName: event.data['Receiver-Name'],
-              receiverType: event.data['Receiver-Type'],
-              senderId: event.data['Sender-Queue-Id'],
-              senderName: event.data['Sender-Name'],
-              senderType: event.data['Sender-Type']);
+              receiverId: event.data[Strings.fcmReceiverQueueId],
+              receiverName: event.data[Strings.fcmReceiverName],
+              receiverType: event.data[Strings.fcmReceiverType],
+              senderId: event.data[Strings.fcmSenderQueueId],
+              senderName: event.data[Strings.fcmSenderName],
+              senderType: event.data[Strings.fcmSenderType]);
 
           if (messageReceived.senderId != widget.user.id) {
             FileHandler.instance.writeMessages(messageReceived);
@@ -209,7 +209,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
     FirebaseMessaging.onMessageOpenedApp.listen((event) {
       final senderId = event.data['Sender-Queue-Id'];
 
-      if(event.data["news"] == "true") {
+      if(event.data[Strings.fcmNews] == "true") {
         // TODO: Redirecionar tela noticia
         return;
       }
@@ -304,6 +304,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           children: <Widget>[
             // Students List
             ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
               itemCount: widget._contactsList.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
@@ -406,10 +407,10 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         message: event.data['message'],
         date: DateFormat('kk:mm:ss \n EEE d MMM yyyy').format(
             DateTime.now()),
-        receiverId: event.data['Receiver-Queue-Id'],
-        senderId: event.data['Sender-Queue-Id'],
-        senderName: event.data['Sender-Name'],
-        senderType: event.data['Sender-Type']);
+        receiverId: event.data[Strings.fcmReceiverQueueId],
+        senderId: event.data[Strings.fcmSenderQueueId],
+        senderName: event.data[Strings.fcmSenderName],
+        senderType: event.data[Strings.fcmSenderType]);
 
     setState(() {
       FileHandler.instance.writeNoticia(noticiaRecebida);
@@ -479,17 +480,14 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
   }
 
   Future<void> _listenNewsTopic() async {
-    print("Escutando TOPIC news");
     switch(widget.user.type) {
       case "Student":
-        print("Escutando Queue Student");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurmaAlunos${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[0]}");
         await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasEscola");
 
         break;
       case "Parensts":
-        print("Escutando Queue Parents");
         for(int i = 0; i < widget.user.turma.length; i++) {
           await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
           await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurmaPais${widget.user.turma[i]}");
@@ -499,7 +497,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
 
         break;
       default:
-        print("Escutando Queue Default");
         for(int i = 0; i < widget.user.turma.length; i++) {
           await FirebaseMessaging.instance.subscribeToTopic("topicNoticiasTurma${widget.user.turma[i]}");
         }
@@ -510,20 +507,16 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
   }
 
   Future<void> _listenTopicGroup() async {
-    print("Escutar grupos");
     for(int i = 0; i < widget.user.grupos.length; i++) {
       await FirebaseMessaging.instance.subscribeToTopic(widget.user.grupos[i].queue);
     }
 
-    print("chamar topin news");
     _listenNewsTopic();
   }
 
   void _getGroups() {
-    print("pegar grupos");
     switch(widget.user.type){
-      case "Student":
-        print("student");
+      case Strings.userStudent:
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
@@ -572,8 +565,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           _getUserMessages();
         });
         break;
-      case "Parents":
-        print("parents");
+      case Strings.userParents:
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
@@ -582,7 +574,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             final data = result.data();
 
             for(int i = 0; i < widget.user.turma.length; i++){
-              if(data["TipoGrupo"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type) ) {
+              if(data["Turma"].contains(widget.user.turma[i]) && data["TipoGrupo"].contains(widget.user.type) ) {
 
                 Grupos grupo = Grupos();
                 grupo.nome = data["Nome"];
@@ -625,7 +617,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
         });
         break;
       default:
-        print("default");
         firestoreInstance.collection("grupos")
             .get()
             .then((query) {
@@ -634,7 +625,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             final data = result.data();
 
             for(int i = 0; i < widget.user.turma.length; i++){
-              if(data["TipoGrupo"].contains(widget.user.turma[i])) {
+              if(data["Turma"].contains(widget.user.turma[i])) {
 
                 Grupos grupo = Grupos();
                 grupo.nome = data["Nome"];
@@ -711,7 +702,8 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           });
         });
         break;
-      case "Teacher":
+
+      case Strings.userTeacher:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -744,7 +736,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             });
 
         break;
-      case "Student":
+      case Strings.userStudent:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -755,7 +747,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 final data = result.data();
                 final contact = ContactData();
 
-                if(data[Strings.typeFirestore] != "Student" && data[Strings.typeFirestore] != "Parents")  {
+                if(data[Strings.typeFirestore] != Strings.userStudent && data[Strings.typeFirestore] != Strings.userParents)  {
                   for(int i = 0; i < widget.user.turma.length; i++) {
 
                     if(data[Strings.turmaFirestore].contains(widget.user.turma[i])){
@@ -780,7 +772,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               });
             });
         break;
-      case "Parents":
+      case Strings.userParents:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -789,7 +781,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 final data = result.data();
                 final contact = ContactData();
 
-                if(data[Strings.typeFirestore] != widget.user.type && data[Strings.typeFirestore] != "Students") {
+                if(data[Strings.typeFirestore] != widget.user.type && data[Strings.typeFirestore] != Strings.userStudent) {
                   for(int i = 0; i < widget.user.turma.length; i++) {
                     if(data[Strings.turmaFirestore].contains(widget.user.turma[i])) {
                       contact.id = data[Strings.idFirestore];
@@ -812,8 +804,8 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               });
             });
         break;
-
-      case "School":
+      case Strings.userTeachingDirection:
+      case Strings.userPedagogicalSector:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
             .get()
@@ -847,9 +839,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             });
         break;
       default:
-        // TODO: This type school will change to Resgistro academico
+        // TODO: This type school will change to Teaching Direction
         firestoreInstance.collection("users")
-            .where("Type", isEqualTo: "School")
+            .where("Type", isEqualTo: Strings.userTeachingDirection)
             .get().then((query) {
               query.docs.forEach((result) {
                 final data = result.data();
@@ -948,7 +940,7 @@ class _NavigateDrawerState extends State<NavigateDrawer> {
             ),
             title: Text('Postar Noticias'),
             onTap: () {
-              if(widget.user.type == "Teacher" || widget.user.type == "School") {
+              if(widget.user.type == Strings.userTeacher || widget.user.type == Strings.userTeachingDirection || widget.user.type == Strings.userPedagogicalSector) {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => PostarNoticia(user: widget.user)),

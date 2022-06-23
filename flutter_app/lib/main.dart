@@ -7,7 +7,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:tcc_ifsc/screens/FluxoLogin/Signup.dart';
 import 'package:tcc_ifsc/screens/Home/Home.dart';
-import 'Enums/SelectedLoginEnum.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';

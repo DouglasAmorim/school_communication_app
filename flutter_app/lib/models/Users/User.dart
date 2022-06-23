@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
 
 class UserData {

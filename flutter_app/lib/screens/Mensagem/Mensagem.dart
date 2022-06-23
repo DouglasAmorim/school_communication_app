@@ -2,7 +2,6 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:tcc_ifsc/Enums/typeEnum.dart';
 import 'package:tcc_ifsc/components/Editor.dart';
 import 'package:tcc_ifsc/models/ApiImplementations/ApiImpl.dart';
 import 'package:tcc_ifsc/models/EstruturaMensagem.dart';
