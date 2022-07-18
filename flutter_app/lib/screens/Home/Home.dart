@@ -54,7 +54,7 @@ Future<void> _messageHandler(RemoteMessage event) async {
 class Home extends StatelessWidget {
   Home({this.uid});
   final String? uid;
-  final String? title = "Home";
+  final String? title = "Contatos";
 
   @override
   Widget build(BuildContext context) {
@@ -702,7 +702,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           });
         });
         break;
-
+        _getGroups();
       case Strings.userTeacher:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
@@ -736,6 +736,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
             });
 
         break;
+        _getGroups();
       case Strings.userStudent:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
@@ -772,6 +773,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               });
             });
         break;
+        _getGroups();
       case Strings.userParents:
         firestoreInstance.collection("users")
             .where("id", isNotEqualTo: widget.user.id)
@@ -804,6 +806,7 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
               });
             });
         break;
+        _getGroups();
       case Strings.userTeachingDirection:
       case Strings.userPedagogicalSector:
         firestoreInstance.collection("users")
@@ -837,9 +840,9 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
                 }
               });
             });
+        _getGroups();
         break;
       default:
-        // TODO: This type school will change to Teaching Direction
         firestoreInstance.collection("users")
             .where("Type", isEqualTo: Strings.userTeachingDirection)
             .get().then((query) {
@@ -866,7 +869,6 @@ class _ContactsListState extends State<ContactsList> with WidgetsBindingObserver
           });
           break;
     }
-    _getGroups();
   }
 }
 

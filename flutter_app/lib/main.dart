@@ -29,7 +29,7 @@ class ComunicationApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Comunica IFSC',
+      title: 'Comunica Escola',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

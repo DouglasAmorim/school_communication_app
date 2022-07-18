@@ -25,7 +25,7 @@ class EnviarNoticiaState extends State<EnviarNoticia> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Criar Usuário")),
+        appBar: AppBar(title: Text("Enviar Notícia")),
         body: Form(
             child: SingleChildScrollView(
                 child: Column(children: <Widget>[
